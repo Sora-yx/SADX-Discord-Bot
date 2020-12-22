@@ -13,7 +13,7 @@ namespace SADX_Discord_Bot.Modules
 {
     public class bot_commands : ModuleBase<SocketCommandContext>
     {
-
+  
         [Command("ping")]
         public async Task PingAsync()
         {
@@ -60,12 +60,52 @@ namespace SADX_Discord_Bot.Modules
                     await ReplyAsync(notif.Run.Player.Name);
                     await ReplyAsync(notif.Run.WebLink.AbsoluteUri);
    
-                   }
+                 }
             }
         }
-        
+
         [Command("check")]
         public async Task checkRun()
+        {
+            var src = Program.Src;
+
+            if (!Bot_Core.botHelper.isConnectionAllowed())
+            {
+                await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid?");
+                return;
+            }
+
+            var gameID = Program.Sadx.ID;
+            IEnumerable<Run> runsList = src.Runs.GetRuns(gameId: gameID, status: RunStatusType.New);
+            string catName = "";
+            string runTime = "";
+            string runLink = "";
+
+            foreach (Run curRun in runsList)
+            {
+                catName = curRun.Category.Name;
+                runTime = curRun.Times.PrimaryISO.Value.ToString();
+                runLink = curRun.WebLink.ToString();
+                await ReplyAsync(catName + runTime + runLink);
+            }
+            
+            //Get Category Extension runs awaiting verification
+            var gameCEID = Bot_Core.botHelper.getCEID;
+            IEnumerable<Run> SADXCEruns = src.Runs.GetRuns(gameId: gameCEID, status: RunStatusType.New);
+
+            foreach (Run curRun in SADXCEruns)
+            {
+                catName = curRun.Category.Name;
+                runTime = curRun.Times.PrimaryISO.Value.ToString();
+                runLink = curRun.WebLink.ToString();
+                await ReplyAsync(catName + runTime + runLink);
+            }
+
+            await ReplyAsync("Check done, everything is under control.");
+        }
+        
+        [Command("reject")]
+        public async Task rejectRun(string reason)
         {
             var src = Program.Src;
 
@@ -76,9 +116,9 @@ namespace SADX_Discord_Bot.Modules
                 return;
             }
 
-            /*var id = "y8rg89dm";
-            Program.Src.Runs.ChangeStatus(id, RunStatusType.Rejected, reason);
-            await ReplyAsync("the Run was successfully rejected reason: " + reason);*/
+            var id = "zgv6dlnz";
+            src.Runs.ChangeStatus(id, RunStatusType.Rejected, reason);
+            await ReplyAsync("the Run https://www.speedrun.com/sadxrando/run/zgv6dlnz was successfully rejected reason: " + reason);
         }
 
     }
