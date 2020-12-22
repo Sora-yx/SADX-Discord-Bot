@@ -1,0 +1,44 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using SpeedrunComSharp;
+using System.Text.RegularExpressions;
+using System.IO;
+using Discord.Commands;
+using Discord.WebSocket;
+using System.Net;
+
+namespace SADX_Discord_Bot.Modules
+{
+    class Bot_Core
+    {
+        public class botHelper
+        {
+            public static string StripHTML(string input)
+            {
+                return Regex.Replace(input, "<.*?>", String.Empty);
+            }
+
+            public static string GetSrcLogin()
+            {
+                try
+                {
+                    using (var sr = new StreamReader("info.txt"))
+                    {
+                        string[] lines = File.ReadAllLines("info.txt");
+                        string tok2 = lines[1];
+                        return tok2;
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Error, couldn't get API Token");
+                    return null;
+                }
+            }
+        }
+
+    }
+}
