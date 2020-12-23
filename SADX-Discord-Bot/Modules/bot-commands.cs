@@ -2,6 +2,7 @@
 using Discord;
 using Discord.WebSocket;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -59,8 +60,7 @@ namespace SADX_Discord_Bot.Modules
                     await ReplyAsync(notif.Run.Date.Value.Date.ToString());
                     await ReplyAsync(notif.Run.Player.Name);
                     await ReplyAsync(notif.Run.WebLink.AbsoluteUri);
-   
-                 }
+                }
             }
         }
 
@@ -68,39 +68,31 @@ namespace SADX_Discord_Bot.Modules
         public async Task checkRun()
         {
             var src = Program.Src;
-
+           
             if (!Bot_Core.botHelper.isConnectionAllowed())
             {
                 await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid?");
                 return;
             }
 
-            var gameID = Program.Sadx.ID;
+            string gameID = Program.Sadx.ID;
             IEnumerable<Run> runsList = src.Runs.GetRuns(gameId: gameID, status: RunStatusType.New);
-            string catName = "";
-            string runTime = "";
-            string runLink = "";
 
             foreach (Run curRun in runsList)
             {
-                catName = curRun.Category.Name;
-                runTime = curRun.Times.PrimaryISO.Value.ToString();
-                runLink = curRun.WebLink.ToString();
-                await ReplyAsync(catName + runTime + runLink);
-            }
-            
-            //Get Category Extension runs awaiting verification
-            var gameCEID = Bot_Core.botHelper.getCEID;
-            IEnumerable<Run> SADXCEruns = src.Runs.GetRuns(gameId: gameCEID, status: RunStatusType.New);
+                string catName = curRun.Category.Name;
+                string runTime = curRun.Times.PrimaryISO.Value.ToString();
+                string runLink = curRun.WebLink.ToString();
 
-            foreach (Run curRun in SADXCEruns)
-            {
-                catName = curRun.Category.Name;
-                runTime = curRun.Times.PrimaryISO.Value.ToString();
-                runLink = curRun.WebLink.ToString();
-                await ReplyAsync(catName + runTime + runLink);
+                var builder = new EmbedBuilder()
+                    .WithThumbnailUrl(Bot_Core.botHelper.getCharacterPicture(catName))
+                    .WithTitle(catName + " run by " + curRun.Player.Name)
+                    .WithDescription("Time: " + runTime + "\n" + runLink)
+                    .WithColor(new Color(33, 176, 252));
+                var emb = builder.Build();
+                await Context.Channel.SendMessageAsync(null, false, emb);
             }
-
+          
             await ReplyAsync("Check done, everything is under control.");
         }
         

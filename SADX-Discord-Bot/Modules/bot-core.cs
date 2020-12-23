@@ -56,6 +56,34 @@ namespace SADX_Discord_Bot.Modules
             {
                 get { return "268r391p"; } 
             }
+
+            public static string getCharacterPicture(string charID)
+            {
+
+                switch (charID)
+                {
+                    case "Sonic's Story":
+                        return "https://i.imgur.com/JNzU3kg.jpg";
+                    case "Tails's Story":
+                        return "https://i.imgur.com/1UUd2MI.jpg";
+                    case "Knuckles's Story":
+                        return "https://i.imgur.com/1UUd2MI.jpg";
+                    case "Amy's Story":
+                        return "https://i.imgur.com/Ei2zWl2.jpeg";
+                    case "Big's Story":
+                        return "https://i.imgur.com/hsic1CA.jpg";
+                    case "Gamma's Story":
+                        return "https://i.imgur.com/HCounU0.jpg";
+                    case "Super Sonic's Story":
+                        return "https://i.imgur.com/zugq3NE.jpg";
+                    case "130 Emblems":
+                        return "https://i.imgur.com/2IPPCec.jpg";
+                    case "All Stories":
+                    default:
+                        return "https://i.imgur.com/qt9qXJo.jpeg";
+
+                }
+            }
         }
 
     }
