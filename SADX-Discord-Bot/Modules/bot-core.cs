@@ -57,19 +57,19 @@ namespace SADX_Discord_Bot.Modules
                 get { return "268r391p"; } 
             }
 
-            public static string getCharacterPicture(string charID)
+            public static string getCharacterPicture(string catName)
             {
 
-                switch (charID)
-                {
+                    switch (catName)
+                    {
                     case "Sonic's Story":
                         return "https://i.imgur.com/JNzU3kg.jpg";
                     case "Tails's Story":
                         return "https://i.imgur.com/1UUd2MI.jpg";
                     case "Knuckles's Story":
-                        return "https://i.imgur.com/1UUd2MI.jpg";
+                        return "https://i.imgur.com/Ei2zWl2.jpg";             
                     case "Amy's Story":
-                        return "https://i.imgur.com/Ei2zWl2.jpeg";
+                        return "https://i.imgur.com/h0hMckY.jpg";
                     case "Big's Story":
                         return "https://i.imgur.com/hsic1CA.jpg";
                     case "Gamma's Story":
@@ -79,10 +79,10 @@ namespace SADX_Discord_Bot.Modules
                     case "130 Emblems":
                         return "https://i.imgur.com/2IPPCec.jpg";
                     case "All Stories":
-                    default:
                         return "https://i.imgur.com/qt9qXJo.jpeg";
+                    }
 
-                }
+                return "https://i.imgur.com/qt9qXJo.jpeg";
             }
         }
 

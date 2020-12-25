@@ -80,11 +80,14 @@ namespace SADX_Discord_Bot.Modules
 
             foreach (Run curRun in runsList)
             {
+
                 string catName = curRun.Category.Name;
-                string runTime = curRun.Times.PrimaryISO.Value.ToString();
+
+                string runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormat);
                 string runLink = curRun.WebLink.ToString();
 
                 var builder = new EmbedBuilder()
+                   
                     .WithThumbnailUrl(Bot_Core.botHelper.getCharacterPicture(catName))
                     .WithTitle(catName + " run by " + curRun.Player.Name)
                     .WithDescription("Time: " + runTime + "\n" + runLink)
@@ -103,8 +106,8 @@ namespace SADX_Discord_Bot.Modules
 
             src.AccessToken = Bot_Core.botHelper.GetSrcLogin();
 
-            if (!Program.Src.IsAccessTokenValid) { 
-                await ReplyAsync("Error, I couldn't log to SRC.");
+            if (!Program.Src.IsAccessTokenValid) {
+                await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid?");
                 return;
             }
 

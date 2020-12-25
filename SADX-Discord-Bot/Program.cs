@@ -18,6 +18,8 @@ namespace SADX_Discord_Bot
         private CommandService commands;
         public static SpeedrunComClient Src;
         public static SpeedrunComSharp.Game Sadx;
+        public static string timeFormat = @"mm\:ss\.ff";
+        public static string timeFormatWithHours = @"hh\:mm\:ss\.ff";
 
         static void Main(string[] args) => new Program().RunBotMain().GetAwaiter().GetResult();
 
