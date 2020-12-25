@@ -49,7 +49,6 @@ namespace SADX_Discord_Bot.Modules
 
             var allNotif = srcRefresh.Notifications.GetNotifications();
 
-
             foreach (Notification notif in allNotif)
             {
                 if (notif.Type == NotificationType.Run && notif.Status == NotificationStatus.Unread)
@@ -64,6 +63,7 @@ namespace SADX_Discord_Bot.Modules
             }
         }
 
+
         [Command("check")]
         public async Task checkRun()
         {
@@ -77,23 +77,64 @@ namespace SADX_Discord_Bot.Modules
 
             string gameID = Program.Sadx.ID;
             IEnumerable<Run> runsList = src.Runs.GetRuns(gameId: gameID, status: RunStatusType.New);
-
+           
             foreach (Run curRun in runsList)
             {
+                string catName = curRun.Category.ID;
+                string ILCharaName = ""; 
+                string bgID = "";
 
-                string catName = curRun.Category.Name;
+                if (curRun.LevelID != null)
+                {
+                    catName = curRun.LevelID;
+
+                    Dictionary<string, SADXLevel>.ValueCollection sadxlevelList = SADXEnums.levelsID.Values;
+
+                    foreach (var value in sadxlevelList)
+                    {
+                        if (value.CatID == catName)
+                        {
+                            string curChara = curRun.Category.Name;
+                            ILCharaName = " (" + curChara + ")";
+                            catName = value.CatName;
+                            bgID = value.BgID;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    Dictionary<string, SADXCharacter>.ValueCollection sadxcharaList = SADXEnums.charactersID.Values;
+
+                    foreach (var value in sadxcharaList)
+                    {
+                        if (value.CharID == catName)
+                        {
+                            catName = value.CharName;
+                            bgID = value.BgID;
+                            break;
+                        }
+                    }
+                }
 
                 string runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormat);
-                string runLink = curRun.WebLink.ToString();
 
-                var builder = new EmbedBuilder()
-                   
-                    .WithThumbnailUrl(Bot_Core.botHelper.getCharacterPicture(catName))
-                    .WithTitle(catName + " run by " + curRun.Player.Name)
-                    .WithDescription("Time: " + runTime + "\n" + runLink)
-                    .WithColor(new Color(33, 176, 252));
-                var emb = builder.Build();
-                await Context.Channel.SendMessageAsync(null, false, emb);
+                     if (curRun.Times.PrimaryISO.Value.Hours != 0)
+                         runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormatWithHours);
+
+                     string runLink = curRun.WebLink.ToString();
+                     string bgURL = "https://i.imgur.com/";
+
+                      string ext = ".jpg";
+
+                     var builder = new EmbedBuilder()
+
+                         .WithThumbnailUrl(bgURL + bgID + ext)
+                         .WithTitle(catName + ILCharaName + " run by " + curRun.Player.Name)
+                         .WithDescription("Time: " + runTime + "\n" + runLink)
+                         .WithColor(new Color(33, 176, 252));
+                     var emb = builder.Build();
+                     await Context.Channel.SendMessageAsync(null, false, emb);
             }
           
             await ReplyAsync("Check done, everything is under control.");
