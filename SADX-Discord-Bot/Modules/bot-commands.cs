@@ -80,44 +80,52 @@ namespace SADX_Discord_Bot.Modules
            
             foreach (Run curRun in runsList)
             {
-                string catName = curRun.Category.ID;
+                string catName = curRun.Category.Name;
                 string ILCharaName = ""; 
                 string bgID = "";
 
-                if (curRun.LevelID != null)
+                if (curRun.Level != null)
                 {
-                    catName = curRun.LevelID;
-
-                    Dictionary<string, SADXLevel>.ValueCollection sadxlevelList = SADXEnums.levelsID.Values;
-
-                    foreach (var value in sadxlevelList)
-                    {
-                        if (value.CatID == catName)
-                        {
-                            string curChara = curRun.Category.Name;
-                            ILCharaName = " (" + curChara + ")";
-                            catName = value.CatName;
-                            bgID = value.BgID;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    Dictionary<string, SADXCharacter>.ValueCollection sadxcharaList = SADXEnums.charactersID.Values;
-
-                    foreach (var value in sadxcharaList)
-                    {
-                        if (value.CharID == catName)
-                        {
-                            catName = value.CharName;
-                            bgID = value.BgID;
-                            break;
-                        }
-                    }
+                    string curChara = catName;
+                    ILCharaName = " (" + curChara + ")";
+                    catName = curRun.Level.Name;
+                    //bgID = value.BgID;
                 }
 
-                string runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormat);
+                    /*if (curRun.LevelID != null)
+                    {
+                        catName = curRun.LevelID;
+
+                        Dictionary<string, SADXLevel>.ValueCollection sadxlevelList = SADXEnums.levelsID.Values;
+
+                        foreach (var value in sadxlevelList)
+                        {
+                            if (value.CatID == catName)
+                            {
+                                string curChara = curRun.Category.Name;
+                                ILCharaName = " (" + curChara + ")";
+                                catName = value.CatName;
+                                bgID = value.BgID;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Dictionary<string, SADXCharacter>.ValueCollection sadxcharaList = SADXEnums.charactersID.Values;
+
+                        foreach (var value in sadxcharaList)
+                        {
+                            if (value.CharID == catName)
+                            {
+                                catName = value.CharName;
+                                bgID = value.BgID;
+                                break;
+                            }
+                        }
+                    }*/
+
+                    string runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormat);
 
                      if (curRun.Times.PrimaryISO.Value.Hours != 0)
                          runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormatWithHours);
@@ -128,7 +136,6 @@ namespace SADX_Discord_Bot.Modules
                       string ext = ".jpg";
 
                      var builder = new EmbedBuilder()
-
                          .WithThumbnailUrl(bgURL + bgID + ext)
                          .WithTitle(catName + ILCharaName + " run by " + curRun.Player.Name)
                          .WithDescription("Time: " + runTime + "\n" + runLink)

@@ -26,7 +26,7 @@ namespace SADX_Discord_Bot
 
         public async Task RunBotMain()
         {
-            Src = new SpeedrunComClient();
+            Src = new SpeedrunComClient(maxCacheElements:0);
             client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity.Debug
