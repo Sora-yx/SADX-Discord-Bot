@@ -14,7 +14,7 @@ namespace SADX_Discord_Bot.Modules
 {
     public class bot_commands : ModuleBase<SocketCommandContext>
     {
-  
+
         [Command("ping")]
         public async Task PingAsync()
         {
@@ -68,7 +68,7 @@ namespace SADX_Discord_Bot.Modules
         public async Task checkRun()
         {
             var src = Program.Src;
-           
+
             if (!Bot_Core.botHelper.isConnectionAllowed())
             {
                 await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid?");
@@ -76,12 +76,12 @@ namespace SADX_Discord_Bot.Modules
             }
 
             string gameID = Program.Sadx.ID;
-            IEnumerable<Run> runsList = src.Runs.GetRuns(gameId: gameID, status: RunStatusType.New);
-           
+            IEnumerable<Run> runsList = src.Runs.GetRuns(gameId: gameID, status: RunStatusType.New, embeds: new RunEmbeds(embedPlayers: true)); //RunEmbeds True = no rate limit to get player name.
+
             foreach (Run curRun in runsList)
             {
                 string catName = curRun.Category.Name;
-                string ILCharaName = ""; 
+                string ILCharaName = "";
                 string bgID = "";
 
                 if (curRun.Level != null)
@@ -89,64 +89,30 @@ namespace SADX_Discord_Bot.Modules
                     string curChara = catName;
                     ILCharaName = " (" + curChara + ")";
                     catName = curRun.Level.Name;
-                    //bgID = value.BgID;
                 }
 
-                    /*if (curRun.LevelID != null)
-                    {
-                        catName = curRun.LevelID;
+                string runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormat);
 
-                        Dictionary<string, SADXLevel>.ValueCollection sadxlevelList = SADXEnums.levelsID.Values;
+                if (curRun.Times.PrimaryISO.Value.Hours != 0)
+                    runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormatWithHours);
 
-                        foreach (var value in sadxlevelList)
-                        {
-                            if (value.CatID == catName)
-                            {
-                                string curChara = curRun.Category.Name;
-                                ILCharaName = " (" + curChara + ")";
-                                catName = value.CatName;
-                                bgID = value.BgID;
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Dictionary<string, SADXCharacter>.ValueCollection sadxcharaList = SADXEnums.charactersID.Values;
+                string runLink = curRun.WebLink.ToString();
+                string bgURL = "https://i.imgur.com/";
 
-                        foreach (var value in sadxcharaList)
-                        {
-                            if (value.CharID == catName)
-                            {
-                                catName = value.CharName;
-                                bgID = value.BgID;
-                                break;
-                            }
-                        }
-                    }*/
+                string ext = ".jpg";
 
-                    string runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormat);
-
-                     if (curRun.Times.PrimaryISO.Value.Hours != 0)
-                         runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormatWithHours);
-
-                     string runLink = curRun.WebLink.ToString();
-                     string bgURL = "https://i.imgur.com/";
-
-                      string ext = ".jpg";
-
-                     var builder = new EmbedBuilder()
-                         .WithThumbnailUrl(bgURL + bgID + ext)
-                         .WithTitle(catName + ILCharaName + " run by " + curRun.Player.Name)
-                         .WithDescription("Time: " + runTime + "\n" + runLink)
-                         .WithColor(new Color(33, 176, 252));
-                     var emb = builder.Build();
-                     await Context.Channel.SendMessageAsync(null, false, emb);
+                var builder = new EmbedBuilder()
+                    .WithThumbnailUrl(bgURL + bgID + ext)
+                    .WithTitle(catName + ILCharaName + " run by " + curRun.Player.Name)
+                    .WithDescription("Time: " + runTime + "\n" + runLink)
+                    .WithColor(new Color(33, 176, 252));
+                var emb = builder.Build();
+                await Context.Channel.SendMessageAsync(null, false, emb);
             }
-          
+
             await ReplyAsync("Check done, everything is under control.");
         }
-        
+
         [Command("reject")]
         public async Task rejectRun(string reason)
         {
@@ -154,7 +120,8 @@ namespace SADX_Discord_Bot.Modules
 
             src.AccessToken = Bot_Core.botHelper.GetSrcLogin();
 
-            if (!Program.Src.IsAccessTokenValid) {
+            if (!Program.Src.IsAccessTokenValid)
+            {
                 await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid?");
                 return;
             }

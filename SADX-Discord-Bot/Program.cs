@@ -9,24 +9,31 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using SpeedrunComSharp;
+using System.Timers;
 
 namespace SADX_Discord_Bot
 {
     class Program
     {
-        private DiscordSocketClient client;
+        private static DiscordSocketClient client;
         private CommandService commands;
         public static SpeedrunComClient Src;
         public static SpeedrunComSharp.Game Sadx;
         public static string timeFormat = @"mm\:ss\.ff";
         public static string timeFormatWithHours = @"hh\:mm\:ss\.ff";
 
+        public enum ERun
+        {
+            newRun,
+            EditRun
+        }
+
         static void Main(string[] args) => new Program().RunBotMain().GetAwaiter().GetResult();
 
 
         public async Task RunBotMain()
         {
-            Src = new SpeedrunComClient(maxCacheElements:0);
+            Src = new SpeedrunComClient(maxCacheElements: 0);
             client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity.Debug
@@ -34,15 +41,22 @@ namespace SADX_Discord_Bot
 
             commands = new CommandService();
 
-
             client.Log += Log;
-
             client.Ready += () =>
             {
                 Sadx = Src.Games.SearchGame(name: "SADX");
                 Console.Write("Ready! Gotta go fast!");
                 return Task.CompletedTask;
             };
+
+            System.Timers.Timer timer = new System.Timers.Timer()
+            {
+                AutoReset = true,
+                Interval = 3000,
+            };
+
+            timer.Elapsed += CheckNewRun_Loop;
+            timer.Start();
 
             await InstallCommandsAsync(); //set command users
 
@@ -96,6 +110,53 @@ namespace SADX_Discord_Bot
         {
             Console.WriteLine(arg.ToString());
             return Task.CompletedTask;
+        }
+
+        public static IMessageChannel GetRunChannel(ERun currentChannel)
+        {
+            string stringID = "";
+
+            try
+            {
+                using (var sr = new StreamReader("info.txt"))
+                {
+                    Console.WriteLine("Reading channels information...");
+                    string[] lines = File.ReadAllLines("info.txt");
+                    if (currentChannel == ERun.newRun)
+                        stringID = lines[2];
+
+                    if (currentChannel == ERun.EditRun)
+                        stringID = lines[3];
+
+                }
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine("Error, couldn't read the file.");
+                Console.WriteLine(e.Message);
+            }
+
+            ulong id = Convert.ToUInt64(stringID);
+            var chnl = client.GetChannel(id) as IMessageChannel;
+            return (chnl);
+        }
+
+
+        private static Task LoopCheck()
+        {
+            var test = GetRunChannel(ERun.newRun);
+
+            if (test != null)
+                test.SendMessageAsync("Test!");
+            else
+                Console.WriteLine("Error, couldn't get the channel run");
+
+            return Task.CompletedTask;
+        }
+
+        private static void CheckNewRun_Loop(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            LoopCheck();
         }
 
     }
