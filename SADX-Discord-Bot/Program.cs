@@ -10,6 +10,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using SpeedrunComSharp;
 using System.Timers;
+using SADX_Discord_Bot.Modules;
 
 namespace SADX_Discord_Bot
 {
@@ -52,7 +53,7 @@ namespace SADX_Discord_Bot
             System.Timers.Timer timer = new System.Timers.Timer()
             {
                 AutoReset = true,
-                Interval = 3000,
+                Interval = 6000,
             };
 
             timer.Elapsed += CheckNewRun_Loop;
@@ -156,7 +157,8 @@ namespace SADX_Discord_Bot
 
         private static void CheckNewRun_Loop(object sender, System.Timers.ElapsedEventArgs e)
         {
-            LoopCheck();
+                botExecTask.ExecuteCheckRun();
+    
         }
 
     }
