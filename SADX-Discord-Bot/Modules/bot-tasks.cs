@@ -17,8 +17,6 @@ namespace SADX_Discord_Bot.Modules
     {
         public async Task checkNewRun()
         {
-            DiscordSocketClient _client = new DiscordSocketClient();
-
             var curChan = Program.GetRunChannel(Program.ERun.newRun);
 
             if (curChan == null)
@@ -51,6 +49,9 @@ namespace SADX_Discord_Bot.Modules
                     catName = curRun.Level.Name;
                 }
 
+                if (isRunListed(curRun.ID))
+                    return;
+
                 string runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormat);
 
                 if (curRun.Times.PrimaryISO.Value.Hours != 0)
@@ -68,15 +69,77 @@ namespace SADX_Discord_Bot.Modules
                     .WithColor(new Color(33, 176, 252));
                 var emb = builder.Build();
                 await curChan.SendMessageAsync(null, false, emb);
+
             }
 
-                await curChan.SendMessageAsync("Check done, everything is under control."); 
+            await curChan.SendMessageAsync("Check done, everything is under control.");
         }
 
-        public static void ExecuteCheckRun()
+        public static async Task ExecuteCheckRun()
         {
             botExecTask task = new botExecTask();
+            //await task.cleanRunList();
             task.checkNewRun();
+        }
+
+        public bool isRunListed(string currentRun)
+        {
+            string txt = "runList.txt";
+
+            try
+            {
+                using (var sr = new StreamReader("runList.txt"))
+                {
+                    Console.WriteLine("Reading Run List information...");
+                    string[] lines = File.ReadAllLines(txt);
+                    foreach (var curLine in lines)
+                    {
+                        if (curLine == currentRun) //if the run is already in the txt file, don't send it again.
+                            return true;
+                    }
+                }
+                File.AppendAllText(txt, currentRun + Environment.NewLine); //if the run wasn't in the list, add it.
+            }
+            catch
+            {
+                File.AppendAllText(txt, currentRun + Environment.NewLine); //if file doesn't exist, create one and add the run ID.
+            }
+
+            return false;
+        }
+
+        public async Task cleanRunList()
+        {
+            string txt = "runList.txt";
+            var src = Program.Src;
+            string gameID = Program.Sadx.ID;
+            IEnumerable<Run> runsList = src.Runs.GetRuns(gameId: gameID, status: RunStatusType.Verified | RunStatusType.Rejected, embeds: new RunEmbeds(embedPlayers: true)); //RunEmbeds True = no rate limit to get player name.
+
+            foreach (Run curRun in runsList)
+            {
+                try
+                {
+                    using (var sr = new StreamReader("runList.txt"))
+                    {
+                        Console.WriteLine("Reading Run List information...");
+                        string[] lines = File.ReadAllLines(txt);
+                        for (int i = 0; i < lines.Length; i++)
+                        {
+                            if (lines[i] == curRun.ID)
+                            {
+                                lines[i].Remove(i);
+                                break;
+                            } 
+                        }
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("No runList.txt found.");
+                    return;
+                }
+            }
+
         }
     }
 

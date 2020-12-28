@@ -53,7 +53,7 @@ namespace SADX_Discord_Bot
             System.Timers.Timer timer = new System.Timers.Timer()
             {
                 AutoReset = true,
-                Interval = 6000,
+                Interval = 36000,
             };
 
             timer.Elapsed += CheckNewRun_Loop;
@@ -68,6 +68,7 @@ namespace SADX_Discord_Bot
                     Console.WriteLine("Reading token information...");
                     string[] lines = File.ReadAllLines("info.txt");
                     await client.LoginAsync(TokenType.Bot, lines[0]);
+                    sr.Close();
                 }
             }
             catch (IOException e)
@@ -129,6 +130,7 @@ namespace SADX_Discord_Bot
                     if (currentChannel == ERun.EditRun)
                         stringID = lines[3];
 
+                    sr.Close();
                 }
             }
             catch (IOException e)
@@ -157,8 +159,7 @@ namespace SADX_Discord_Bot
 
         private static void CheckNewRun_Loop(object sender, System.Timers.ElapsedEventArgs e)
         {
-                botExecTask.ExecuteCheckRun();
-    
+           botExecTask.ExecuteCheckRun();
         }
 
     }
