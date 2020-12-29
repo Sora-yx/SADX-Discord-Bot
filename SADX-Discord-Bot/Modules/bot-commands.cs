@@ -21,16 +21,6 @@ namespace SADX_Discord_Bot.Modules
             await ReplyAsync("pong! I'm here.");
         }
 
-        [Command("cat")]
-        public async Task getCat()
-        {
-            var game = Program.Src.Games.SearchGame(name: "sadx");
-
-            foreach (var category in game.FullGameCategories)
-            {
-                await Context.Channel.SendMessageAsync(category.Name);
-            }
-        }
 
         [Command("history")]
         public async Task getWRHistory()
@@ -111,24 +101,6 @@ namespace SADX_Discord_Bot.Modules
             }
 
             await ReplyAsync("Check done, everything is under control.");
-        }
-
-        [Command("reject")]
-        public async Task rejectRun(string reason)
-        {
-            var src = Program.Src;
-
-            src.AccessToken = Bot_Core.botHelper.GetSrcLogin();
-
-            if (!Program.Src.IsAccessTokenValid)
-            {
-                await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid?");
-                return;
-            }
-
-            var id = "zgv6dlnz";
-            src.Runs.ChangeStatus(id, RunStatusType.Rejected, reason);
-            await ReplyAsync("the Run https://www.speedrun.com/sadxrando/run/zgv6dlnz was successfully rejected reason: " + reason);
         }
 
         [Command("quit")]

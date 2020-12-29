@@ -11,6 +11,7 @@ using Discord.WebSocket;
 using SpeedrunComSharp;
 using System.Timers;
 using SADX_Discord_Bot.Modules;
+using System.Text.Json;
 
 namespace SADX_Discord_Bot
 {
@@ -155,8 +156,7 @@ namespace SADX_Discord_Bot
 
         private async Task executecopyJson()
         {
-            botExecTask task = new botExecTask();
-            await task.copyJsonToList(runList);
+            runList = JsonSerializer.Deserialize<List<string>>(File.ReadAllText("runList.json"));
         }
 
         private async Task copyInfoList()

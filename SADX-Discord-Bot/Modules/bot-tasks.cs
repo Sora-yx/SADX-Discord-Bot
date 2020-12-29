@@ -26,16 +26,23 @@ namespace SADX_Discord_Bot.Modules
                 return;
             }
 
-            var src = Program.Src;
-
             if (!Bot_Core.botHelper.isConnectionAllowed())
             {
                 await curChan.SendMessageAsync("Error, I couldn't log to SRC. Are you sure the token is valid? Please check the the text file.");
                 return;
             }
 
+            //List Runs
             string gameID = Program.Sadx.ID;
-            IEnumerable<Run> runsList = src.Runs.GetRuns(gameId: gameID, status: RunStatusType.New, embeds: new RunEmbeds(embedPlayers: true)); //RunEmbeds True = no rate limit to get player name.
+            await ListNewRuns(gameID, curChan);
+            //Category Extension
+            gameID = Bot_Core.botHelper.getCEID;
+            await ListNewRuns(gameID, curChan);
+        }
+
+        public async Task ListNewRuns(string gameID, IMessageChannel curChan)
+        {
+            IEnumerable<Run> runsList = Program.Src.Runs.GetRuns(gameId: gameID, status: RunStatusType.New, embeds: new RunEmbeds(embedPlayers: true)); //RunEmbeds True = no rate limit to get player name.
 
             foreach (Run curRun in runsList)
             {
@@ -70,8 +77,8 @@ namespace SADX_Discord_Bot.Modules
                     .WithColor(new Color(33, 176, 252));
                 var emb = builder.Build();
                 await curChan.SendMessageAsync(null, false, emb);
-
             }
+
             var json = JsonSerializer.Serialize(Program.runList);
             File.WriteAllText("runList.json", json + Environment.NewLine); //Update the json file with the new updated list.
             await curChan.SendMessageAsync("Check done, everything is under control.");
@@ -130,28 +137,6 @@ namespace SADX_Discord_Bot.Modules
             }
         }
 
-        public async Task copyJsonToList(List<string> runList)
-        {
-            string json = "runList.json";
-
-            try
-            {
-                using (var sr = new StreamReader(json))
-                {
-                    Console.WriteLine("Reading Run List information...");
-                    string[] lines = File.ReadAllLines(json);
-                    foreach (var curLine in lines)
-                    {
-                        Program.runList.Add(curLine);
-                    }
-                }
-            }
-            catch
-            {
-                Console.WriteLine("No runList.json found.");
-                return;
-            }
-        }
     }
 
 }
