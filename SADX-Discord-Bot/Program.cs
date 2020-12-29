@@ -23,6 +23,7 @@ namespace SADX_Discord_Bot
         public static string timeFormat = @"mm\:ss\.ff";
         public static string timeFormatWithHours = @"hh\:mm\:ss\.ff";
         public static List<string> runList = new List<string>();
+        public static List<string> chanList = new List<string>();
 
         public enum ELogChannel
         {
@@ -50,7 +51,7 @@ namespace SADX_Discord_Bot
                 Sadx = Src.Games.SearchGame(name: "SADX");
                
                 Console.Write("Ready! Gotta go fast!");
-                var curChan = Program.GetRunChannel(Program.ELogChannel.logBotChan);
+                var curChan = GetRunChannel(ELogChannel.logBotChan);
                 if (curChan != null)
                     curChan.SendMessageAsync("Ready! Gotta go fast! \n" + "Connected. " + DateTime.Now);
                 return Task.CompletedTask;
@@ -67,6 +68,7 @@ namespace SADX_Discord_Bot
 
             await InstallCommandsAsync(); //set command users
             await executecopyJson();
+            await copyInfoList();
 
             try
             {
@@ -124,43 +126,15 @@ namespace SADX_Discord_Bot
 
         public static IMessageChannel GetRunChannel(ELogChannel currentChannel)
         {
-            string stringID = "";
+            int enumInt = Convert.ToInt32(currentChannel);
 
-            try
-            {
-                using (var sr = new StreamReader("info.txt"))
-                {
-                    Console.WriteLine("Reading channels information...");
-                    string[] lines = File.ReadAllLines("info.txt");
-
-                    switch (currentChannel)
-                    {
-                        case ELogChannel.newRunChan:
-                            stringID = lines[2];
-                            break;
-                        case ELogChannel.editRunChan:
-                            stringID = lines[3];
-                            break;
-                        case ELogChannel.logBotChan:
-                        default:
-                            stringID = lines[4];
-                            break;
-                    }
-                    sr.Close();
-                }
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine("Error, couldn't get Channel ID, please make sure you have a valid text file.");
-                Console.WriteLine(e.Message);
+            if (chanList.Count <= 0)
                 return null;
-            }
 
-            ulong id = Convert.ToUInt64(stringID);
+            ulong id = Convert.ToUInt64(chanList[enumInt]);
             var chnl = client.GetChannel(id) as IMessageChannel;
             return (chnl);
         }
-
 
         private static Task LoopCheck()
         {
@@ -183,6 +157,29 @@ namespace SADX_Discord_Bot
         {
             botExecTask task = new botExecTask();
             await task.copyJsonToList(runList);
+        }
+
+        private async Task copyInfoList()
+        {
+            string txt = "chan.txt";
+
+            try
+            {
+                using (var sr = new StreamReader(txt))
+                {
+                    Console.WriteLine("Reading Channels information...");
+                    string[] lines = File.ReadAllLines(txt);
+                    foreach (var curLine in lines)
+                    {
+                        chanList.Add(curLine);
+                    }
+                }
+            }
+            catch
+            {
+                Console.WriteLine("No chan.txt found.");
+                return;
+            }
         }
 
     }
