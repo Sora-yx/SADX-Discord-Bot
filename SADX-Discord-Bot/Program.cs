@@ -24,10 +24,11 @@ namespace SADX_Discord_Bot
         public static string timeFormatWithHours = @"hh\:mm\:ss\.ff";
         public static List<string> runList = new List<string>();
 
-        public enum ERun
+        public enum ELogChannel
         {
-            newRun,
-            EditRun
+            newRunChan,
+            editRunChan,
+            logBotChan
         }
 
         static void Main(string[] args) => new Program().RunBotMain().GetAwaiter().GetResult();
@@ -42,13 +43,16 @@ namespace SADX_Discord_Bot
             });
 
             commands = new CommandService();
-
+            
             client.Log += Log;
             client.Ready += () =>
             {
                 Sadx = Src.Games.SearchGame(name: "SADX");
                
                 Console.Write("Ready! Gotta go fast!");
+                var curChan = Program.GetRunChannel(Program.ELogChannel.logBotChan);
+                if (curChan != null)
+                    curChan.SendMessageAsync("Ready! Gotta go fast! \n" + "Connected. " + DateTime.Now);
                 return Task.CompletedTask;
             };
 
@@ -78,7 +82,8 @@ namespace SADX_Discord_Bot
             {
                 Console.WriteLine("Error, couldn't read the file.");
                 Console.WriteLine(e.Message);
-                await Task.Delay(3000);
+                await client.StopAsync();
+                await Task.Delay(1000);
                 Environment.Exit(0);
             }
 
@@ -117,7 +122,7 @@ namespace SADX_Discord_Bot
             return Task.CompletedTask;
         }
 
-        public static IMessageChannel GetRunChannel(ERun currentChannel)
+        public static IMessageChannel GetRunChannel(ELogChannel currentChannel)
         {
             string stringID = "";
 
@@ -127,19 +132,28 @@ namespace SADX_Discord_Bot
                 {
                     Console.WriteLine("Reading channels information...");
                     string[] lines = File.ReadAllLines("info.txt");
-                    if (currentChannel == ERun.newRun)
-                        stringID = lines[2];
 
-                    if (currentChannel == ERun.EditRun)
-                        stringID = lines[3];
-
+                    switch (currentChannel)
+                    {
+                        case ELogChannel.newRunChan:
+                            stringID = lines[2];
+                            break;
+                        case ELogChannel.editRunChan:
+                            stringID = lines[3];
+                            break;
+                        case ELogChannel.logBotChan:
+                        default:
+                            stringID = lines[4];
+                            break;
+                    }
                     sr.Close();
                 }
             }
             catch (IOException e)
             {
-                Console.WriteLine("Error, couldn't read the file.");
+                Console.WriteLine("Error, couldn't get Channel ID, please make sure you have a valid text file.");
                 Console.WriteLine(e.Message);
+                return null;
             }
 
             ulong id = Convert.ToUInt64(stringID);
@@ -150,7 +164,7 @@ namespace SADX_Discord_Bot
 
         private static Task LoopCheck()
         {
-            var test = GetRunChannel(ERun.newRun);
+            var test = GetRunChannel(ELogChannel.newRunChan);
 
             if (test != null)
                 test.SendMessageAsync("Test!");

@@ -18,7 +18,7 @@ namespace SADX_Discord_Bot.Modules
     {
         public async Task checkNewRun()
         {
-            var curChan = Program.GetRunChannel(Program.ERun.newRun);
+            var curChan = Program.GetRunChannel(Program.ELogChannel.newRunChan);
 
             if (curChan == null)
             {

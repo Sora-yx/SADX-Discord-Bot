@@ -131,5 +131,16 @@ namespace SADX_Discord_Bot.Modules
             await ReplyAsync("the Run https://www.speedrun.com/sadxrando/run/zgv6dlnz was successfully rejected reason: " + reason);
         }
 
+        [Command("quit")]
+        public async Task exitBot()
+        {
+            DiscordSocketClient task = new DiscordSocketClient();
+            var curChan = Program.GetRunChannel(Program.ELogChannel.logBotChan);
+            if (curChan != null)
+                await curChan.SendMessageAsync(":wave: See ya! \n" + "Disconnection... " + DateTime.Now);
+            await task.StopAsync();
+            await Task.Delay(500);
+            Environment.Exit(0);
+        }        
     }
 }
