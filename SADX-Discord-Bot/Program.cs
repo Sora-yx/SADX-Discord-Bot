@@ -24,6 +24,7 @@ namespace SADX_Discord_Bot
         public static string timeFormat = @"mm\:ss\.ff";
         public static string timeFormatWithHours = @"hh\:mm\:ss\.ff";
         public static List<string> runList = new List<string>();
+        public static List<string> runCEList = new List<string>();
         public static List<string> chanList = new List<string>();
 
         public enum ELogChannel
@@ -45,12 +46,12 @@ namespace SADX_Discord_Bot
             });
 
             commands = new CommandService();
-            
+
             client.Log += Log;
             client.Ready += () =>
             {
                 Sadx = Src.Games.SearchGame(name: "SADX");
-               
+
                 Console.Write("Ready! Gotta go fast!");
                 var curChan = GetRunChannel(ELogChannel.logBotChan);
                 if (curChan != null)
@@ -69,7 +70,7 @@ namespace SADX_Discord_Bot
 
             await InstallCommandsAsync(); //set command users
             await executecopyJson();
-            await copyInfoList();
+            await getChanList();
 
             try
             {
@@ -151,15 +152,23 @@ namespace SADX_Discord_Bot
 
         private static void CheckNewRun_Loop(object sender, System.Timers.ElapsedEventArgs e)
         {
-           botExecTask.ExecuteCheckRun();
+            botExecTask.ExecuteCheckRun();
         }
 
         private async Task executecopyJson()
         {
-            runList = JsonSerializer.Deserialize<List<string>>(File.ReadAllText("runList.json"));
+            try
+            {
+                runList = JsonSerializer.Deserialize<List<string>>(File.ReadAllText("runList.json"));
+                runCEList = JsonSerializer.Deserialize<List<string>>(File.ReadAllText("runCEList.json"));
+            }
+            catch
+            {
+                Console.WriteLine("Couldn't open one of the json file, it will be created later.");
+            }
         }
 
-        private async Task copyInfoList()
+        private async Task getChanList()
         {
             string txt = "chan.txt";
 

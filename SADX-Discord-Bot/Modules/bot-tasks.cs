@@ -38,10 +38,18 @@ namespace SADX_Discord_Bot.Modules
             //Category Extension
             gameID = Bot_Core.botHelper.getCEID;
             await ListNewRuns(gameID, curChan);
+            //Update the json file with the new updated list.
+            var json = JsonSerializer.Serialize(Program.runList);
+            File.WriteAllText("runList.json", json + Environment.NewLine);
+            var jsonCE = JsonSerializer.Serialize(Program.runCEList);
+            File.WriteAllText("runCEList.json", jsonCE + Environment.NewLine);
+            Console.WriteLine("Updated run list and json file.");
         }
 
         public async Task ListNewRuns(string gameID, IMessageChannel curChan)
         {
+            List<string> newRunList = new List<string>();
+
             IEnumerable<Run> runsList = Program.Src.Runs.GetRuns(gameId: gameID, status: RunStatusType.New, embeds: new RunEmbeds(embedPlayers: true)); //RunEmbeds True = no rate limit to get player name.
 
             foreach (Run curRun in runsList)
@@ -57,9 +65,10 @@ namespace SADX_Discord_Bot.Modules
                     catName = curRun.Level.Name;
                 }
 
-                if (isRunListed(curRun.ID))
+                if (isRunListed(curRun.ID, gameID))
                     return;
 
+                newRunList.Add(curRun.ID);
                 string runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormat);
 
                 if (curRun.Times.PrimaryISO.Value.Hours != 0)
@@ -79,64 +88,33 @@ namespace SADX_Discord_Bot.Modules
                 await curChan.SendMessageAsync(null, false, emb);
             }
 
-            var json = JsonSerializer.Serialize(Program.runList);
-            File.WriteAllText("runList.json", json + Environment.NewLine); //Update the json file with the new updated list.
-            await curChan.SendMessageAsync("Check done, everything is under control.");
+            if (gameID == Bot_Core.botHelper.getCEID)
+                Program.runCEList = newRunList;
+            else
+                Program.runList = newRunList;
         }
 
         public static async Task ExecuteCheckRun()
         {
             botExecTask task = new botExecTask();
-            //await task.cleanRunList();
-            task.checkNewRun();
+            await task.checkNewRun();
         }
 
-        public bool isRunListed(string currentRun)
+        public bool isRunListed(string currentRun, string gameID)
         {
+
             List<string> run = Program.runList;
+
+            if (gameID == Bot_Core.botHelper.getCEID)
+                run = Program.runCEList;
+  
             bool result = run.Contains(currentRun);
 
             if (result)
                 return true;
 
-            Program.runList.Add(currentRun);
             return false;
         }
-
-
-        public async Task cleanRunList()
-        {
-            string txt = "runList.txt";
-            var src = Program.Src;
-            string gameID = Program.Sadx.ID;
-            IEnumerable<Run> runsList = src.Runs.GetRuns(gameId: gameID, status: RunStatusType.Verified | RunStatusType.Rejected, embeds: new RunEmbeds(embedPlayers: true)); //RunEmbeds True = no rate limit to get player name.
-
-            foreach (Run curRun in runsList)
-            {
-                try
-                {
-                    using (var sr = new StreamReader("runList.txt"))
-                    {
-                        Console.WriteLine("Reading Run List information...");
-                        string[] lines = File.ReadAllLines(txt);
-                        for (int i = 0; i < lines.Length; i++)
-                        {
-                            if (lines[i] == curRun.ID)
-                            {
-                                lines[i].Remove(i);
-                                break;
-                            }
-                        }
-                    }
-                }
-                catch
-                {
-                    Console.WriteLine("No runList.txt found.");
-                    return;
-                }
-            }
-        }
-
     }
 
 }
