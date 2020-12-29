@@ -8,12 +8,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SpeedrunComSharp;
+using System.Text.Json;
 
 
 namespace SADX_Discord_Bot.Modules
 {
 
-    public class botExecTask : ModuleBase<SocketCommandContext>
+    public class botExecTask 
     {
         public async Task checkNewRun()
         {
@@ -71,7 +72,8 @@ namespace SADX_Discord_Bot.Modules
                 await curChan.SendMessageAsync(null, false, emb);
 
             }
-
+            var json = JsonSerializer.Serialize(Program.runList);
+            File.WriteAllText("runList.json", json + Environment.NewLine); //Update the json file with the new updated list.
             await curChan.SendMessageAsync("Check done, everything is under control.");
         }
 
@@ -84,29 +86,16 @@ namespace SADX_Discord_Bot.Modules
 
         public bool isRunListed(string currentRun)
         {
-            string txt = "runList.txt";
+            List<string> run = Program.runList;
+            bool result = run.Contains(currentRun);
 
-            try
-            {
-                using (var sr = new StreamReader("runList.txt"))
-                {
-                    Console.WriteLine("Reading Run List information...");
-                    string[] lines = File.ReadAllLines(txt);
-                    foreach (var curLine in lines)
-                    {
-                        if (curLine == currentRun) //if the run is already in the txt file, don't send it again.
-                            return true;
-                    }
-                }
-                File.AppendAllText(txt, currentRun + Environment.NewLine); //if the run wasn't in the list, add it.
-            }
-            catch
-            {
-                File.AppendAllText(txt, currentRun + Environment.NewLine); //if file doesn't exist, create one and add the run ID.
-            }
+            if (result)
+                return true;
 
+            Program.runList.Add(currentRun);
             return false;
         }
+
 
         public async Task cleanRunList()
         {
@@ -129,7 +118,7 @@ namespace SADX_Discord_Bot.Modules
                             {
                                 lines[i].Remove(i);
                                 break;
-                            } 
+                            }
                         }
                     }
                 }
@@ -139,7 +128,29 @@ namespace SADX_Discord_Bot.Modules
                     return;
                 }
             }
+        }
 
+        public async Task copyJsonToList(List<string> runList)
+        {
+            string json = "runList.json";
+
+            try
+            {
+                using (var sr = new StreamReader(json))
+                {
+                    Console.WriteLine("Reading Run List information...");
+                    string[] lines = File.ReadAllLines(json);
+                    foreach (var curLine in lines)
+                    {
+                        Program.runList.Add(curLine);
+                    }
+                }
+            }
+            catch
+            {
+                Console.WriteLine("No runList.json found.");
+                return;
+            }
         }
     }
 

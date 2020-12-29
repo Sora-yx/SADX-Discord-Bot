@@ -22,6 +22,7 @@ namespace SADX_Discord_Bot
         public static SpeedrunComSharp.Game Sadx;
         public static string timeFormat = @"mm\:ss\.ff";
         public static string timeFormatWithHours = @"hh\:mm\:ss\.ff";
+        public static List<string> runList = new List<string>();
 
         public enum ERun
         {
@@ -46,6 +47,7 @@ namespace SADX_Discord_Bot
             client.Ready += () =>
             {
                 Sadx = Src.Games.SearchGame(name: "SADX");
+               
                 Console.Write("Ready! Gotta go fast!");
                 return Task.CompletedTask;
             };
@@ -60,6 +62,7 @@ namespace SADX_Discord_Bot
             timer.Start();
 
             await InstallCommandsAsync(); //set command users
+            await executecopyJson();
 
             try
             {
@@ -160,6 +163,12 @@ namespace SADX_Discord_Bot
         private static void CheckNewRun_Loop(object sender, System.Timers.ElapsedEventArgs e)
         {
            botExecTask.ExecuteCheckRun();
+        }
+
+        private async Task executecopyJson()
+        {
+            botExecTask task = new botExecTask();
+            await task.copyJsonToList(runList);
         }
 
     }
