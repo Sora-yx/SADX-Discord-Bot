@@ -61,7 +61,7 @@ namespace SADX_Discord_Bot
             System.Timers.Timer timer = new System.Timers.Timer()
             {
                 AutoReset = true,
-                Interval = 180000,
+                Interval = 36000,//180000,
             };
 
             timer.Elapsed += CheckNewRun_Loop;
