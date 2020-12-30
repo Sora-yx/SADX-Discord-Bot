@@ -14,11 +14,12 @@ using System.Text.Json;
 namespace SADX_Discord_Bot.Modules
 {
 
-    public class botExecTask 
+    public static class BotExecTask 
     {
-        public async Task checkNewRun()
+        public static async Task checkNewRun()
         {
             var curChan = Program.GetRunChannel(Program.ELogChannel.newRunChan);
+            SpeedrunComClient Src = new SpeedrunComClient(maxCacheElements: 0, accessToken: BotHelper.GetSrcLogin());
 
             if (curChan == null)
             {
@@ -26,7 +27,7 @@ namespace SADX_Discord_Bot.Modules
                 return;
             }
 
-            if (!Bot_Core.botHelper.isConnectionAllowed())
+            if (!BotHelper.isConnectionAllowed())
             {
                 await curChan.SendMessageAsync("Error, I couldn't log to SRC. Are you sure the token is valid? Please check the the text file.");
                 return;
@@ -36,7 +37,7 @@ namespace SADX_Discord_Bot.Modules
             string gameID = Program.Sadx.ID;
             await ListNewRuns(gameID, curChan);
             //Category Extension
-            gameID = Bot_Core.botHelper.getCEID;
+            gameID = BotHelper.getCEID;
             await ListNewRuns(gameID, curChan);
             //Update the json file with the new updated list.
             var json = JsonSerializer.Serialize(Program.runList);
@@ -46,7 +47,7 @@ namespace SADX_Discord_Bot.Modules
             Console.WriteLine("Updated run list and json file.");
         }
 
-        public async Task ListNewRuns(string gameID, IMessageChannel curChan)
+        public static async Task ListNewRuns(string gameID, IMessageChannel curChan)
         {
             List<string> newRunList = new List<string>();
 
@@ -88,24 +89,18 @@ namespace SADX_Discord_Bot.Modules
                 await curChan.SendMessageAsync(null, false, emb);
             }
 
-            if (gameID == Bot_Core.botHelper.getCEID)
+            if (gameID == BotHelper.getCEID)
                 Program.runCEList = newRunList;
             else
                 Program.runList = newRunList;
         }
 
-        public static async Task ExecuteCheckRun()
-        {
-            botExecTask task = new botExecTask();
-            await task.checkNewRun();
-        }
-
-        public bool isRunListed(string currentRun, string gameID)
+        public static bool isRunListed(string currentRun, string gameID)
         {
 
             List<string> run = Program.runList;
 
-            if (gameID == Bot_Core.botHelper.getCEID)
+            if (gameID == BotHelper.getCEID)
                 run = Program.runCEList;
   
             bool result = run.Contains(currentRun);

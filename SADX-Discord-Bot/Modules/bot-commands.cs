@@ -12,7 +12,7 @@ using SpeedrunComSharp;
 
 namespace SADX_Discord_Bot.Modules
 {
-    public class bot_commands : ModuleBase<SocketCommandContext>
+    public class Bot_commands : ModuleBase<SocketCommandContext>
     {
 
         [Command("ping")]
@@ -28,38 +28,13 @@ namespace SADX_Discord_Bot.Modules
             await ReplyAsync("https://docs.google.com/spreadsheets/d/1r3NCGlerKyvKZc6aPV-b4eCJ6JiF1PljDndm4JnOVto/edit?usp=sharing");
         }
 
-        [Command("notif")]
-        public async Task getNotif()
-        {
-            var srcRefresh = new SpeedrunComClient();
-            srcRefresh.AccessToken = Bot_Core.botHelper.GetSrcLogin();
-
-            if (!srcRefresh.IsAccessTokenValid)
-                return;
-
-            var allNotif = srcRefresh.Notifications.GetNotifications();
-
-            foreach (Notification notif in allNotif)
-            {
-                if (notif.Type == NotificationType.Run && notif.Status == NotificationStatus.Unread)
-                {
-                    string newRun = Bot_Core.botHelper.StripHTML(notif.Text);
-                    await ReplyAsync(newRun);
-                    await ReplyAsync(notif.Run.Category.Name);
-                    await ReplyAsync(notif.Run.Date.Value.Date.ToString());
-                    await ReplyAsync(notif.Run.Player.Name);
-                    await ReplyAsync(notif.Run.WebLink.AbsoluteUri);
-                }
-            }
-        }
-
 
         [Command("check")]
         public async Task checkRun()
         {
             var src = Program.Src;
 
-            if (!Bot_Core.botHelper.isConnectionAllowed())
+            if (!BotHelper.isConnectionAllowed())
             {
                 await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid?");
                 return;

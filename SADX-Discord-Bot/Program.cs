@@ -36,10 +36,9 @@ namespace SADX_Discord_Bot
 
         static void Main(string[] args) => new Program().RunBotMain().GetAwaiter().GetResult();
 
-
         public async Task RunBotMain()
         {
-            Src = new SpeedrunComClient(maxCacheElements: 0);
+            Src = new SpeedrunComClient(maxCacheElements: 0, accessToken: BotHelper.GetSrcLogin());
             client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity.Debug
@@ -62,7 +61,7 @@ namespace SADX_Discord_Bot
             System.Timers.Timer timer = new System.Timers.Timer()
             {
                 AutoReset = true,
-                Interval = 36000,
+                Interval = 180000,
             };
 
             timer.Elapsed += CheckNewRun_Loop;
@@ -76,7 +75,7 @@ namespace SADX_Discord_Bot
             {
                 using (var sr = new StreamReader("info.txt"))
                 {
-                    Console.WriteLine("Reading token information...");
+                    Console.WriteLine("Reading Discord token information...");
                     string[] lines = File.ReadAllLines("info.txt");
                     await client.LoginAsync(TokenType.Bot, lines[0]);
                     sr.Close();
@@ -152,7 +151,7 @@ namespace SADX_Discord_Bot
 
         private static void CheckNewRun_Loop(object sender, System.Timers.ElapsedEventArgs e)
         {
-            botExecTask.ExecuteCheckRun();
+            BotExecTask.checkNewRun();
         }
 
         private async Task executecopyJson()
@@ -190,6 +189,5 @@ namespace SADX_Discord_Bot
                 return;
             }
         }
-
     }
 }
