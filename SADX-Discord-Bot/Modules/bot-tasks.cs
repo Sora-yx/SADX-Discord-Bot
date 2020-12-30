@@ -19,7 +19,6 @@ namespace SADX_Discord_Bot.Modules
         public static async Task checkNewRun()
         {
             var curChan = Program.GetRunChannel(Program.ELogChannel.newRunChan);
-            SpeedrunComClient Src = new SpeedrunComClient(maxCacheElements: 0, accessToken: BotHelper.GetSrcLogin());
 
             if (curChan == null)
             {
