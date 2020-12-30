@@ -28,7 +28,7 @@ namespace SADX_Discord_Bot.Modules
 
             if (!BotHelper.isConnectionAllowed())
             {
-                await curChan.SendMessageAsync("Error, I couldn't log to SRC. Are you sure the token is valid? Please check the the text file.");
+                await curChan.SendMessageAsync("Error, I couldn't log to SRC. Are you sure the token is valid? Please check the text file.");
                 return;
             }
 
