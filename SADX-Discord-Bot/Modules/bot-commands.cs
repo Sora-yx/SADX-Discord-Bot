@@ -59,11 +59,11 @@ namespace SADX_Discord_Bot.Modules
                     string catName = curRun.Category.Name;
                     string ILCharaName = "";
                     string bgID = "";
+                    string resultDay = BotHelper.getSubmittedDay(curRun);
 
                     if (curRun.Level != null)
                     {
-                        string curChara = catName;
-                        ILCharaName = " (" + curChara + ")";
+                        ILCharaName = " (" + catName + ")";
                         catName = curRun.Level.Name;
                     }
 
@@ -80,7 +80,7 @@ namespace SADX_Discord_Bot.Modules
                     var builder = new EmbedBuilder()
                         .WithThumbnailUrl(bgURL + bgID + ext)
                         .WithTitle(catName + ILCharaName + " run by " + curRun.Player.Name)
-                        .WithDescription("Time: " + runTime + "\n" + runLink)
+                        .WithDescription("Time: " + runTime + "\n" + runLink + "\n" + "Submitted " + resultDay)
                         .WithColor(new Color(33, 176, 252));
                     var emb = builder.Build();
                     await Context.User.SendMessageAsync(null, false, emb);

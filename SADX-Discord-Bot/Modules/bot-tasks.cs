@@ -22,7 +22,7 @@ namespace SADX_Discord_Bot.Modules
 
             if (curChan == null)
             {
-                Console.WriteLine("Error, I couldn't get the channel. Please check the text file.");
+                Console.WriteLine("Error, I couldn't get the channel to send the runs. Please check the text channel file.");
                 return;
             }
 
@@ -52,7 +52,7 @@ namespace SADX_Discord_Bot.Modules
                 string catName = curRun.Category.Name;
                 string ILCharaName = "";
                 string bgID = "";
-
+                string resultDay = BotHelper.getSubmittedDay(curRun);
                 newRunList.Add(curRun.ID);
 
                 if (curRun.Level != null)
@@ -82,7 +82,7 @@ namespace SADX_Discord_Bot.Modules
                     var builder = new EmbedBuilder()
                         .WithThumbnailUrl(bgURL + bgID + ext)
                         .WithTitle(catName + ILCharaName + " run by " + curRun.Player.Name)
-                        .WithDescription("Time: " + runTime + "\n" + runLink)
+                        .WithDescription("Time: " + runTime + "\n" + runLink + "\n" + "Submitted " + resultDay)
                         .WithColor(new Color(33, 176, 252));
                     var emb = builder.Build();
                     await curChan.SendMessageAsync(null, false, emb);

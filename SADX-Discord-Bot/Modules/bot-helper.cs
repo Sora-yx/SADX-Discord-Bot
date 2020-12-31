@@ -50,6 +50,22 @@ namespace SADX_Discord_Bot.Modules
             return true;
         }
 
+        public static string getSubmittedDay(Run curRun)
+        {
+            string resultDay = "";
+
+            int getsubmittedDay = (DateTime.Today.Date - curRun.DateSubmitted.Value.Date).Days;
+
+            if (getsubmittedDay == 1)
+                return resultDay += " Day ago";
+
+            if (getsubmittedDay == 0)
+                return resultDay = " Today";
+
+
+           return resultDay += " Days ago";
+        }
+
         public static string getCEID
         {
             get { return "268r391p"; }
