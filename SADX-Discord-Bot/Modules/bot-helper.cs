@@ -56,13 +56,38 @@ namespace SADX_Discord_Bot.Modules
             int getsubmittedDay = (DateTime.Today.Date - curRun.DateSubmitted.Value.Date).Days;
 
             if (getsubmittedDay == 1)
-                return resultDay += " Day ago";
+                return resultDay = getsubmittedDay + " Day ago";
 
             if (getsubmittedDay == 0)
                 return resultDay = " Today";
 
 
-           return resultDay += " Days ago";
+           return resultDay = getsubmittedDay + " Days ago";
+        }
+
+        public static string getBGID(string category)
+        {
+            Dictionary<string, SADXLevel>.ValueCollection sadxlevelList = SADXEnums.levelsID.Values;
+
+            foreach (var value in sadxlevelList)
+            {
+                if (value.CatName == category)
+                {
+                    return value.BgID;
+                }
+            }
+
+            Dictionary<string, SADXCharacter>.ValueCollection sadxcharaList = SADXEnums.charactersID.Values;
+
+            foreach (var value in sadxcharaList)
+            {
+                if (value.CharName == category)
+                {
+                    return value.BgID;
+                }
+            }
+
+            return null;
         }
 
         public static string getCEID

@@ -43,7 +43,6 @@ namespace SADX_Discord_Bot.Modules
                     string catName = sadxcharaList[key].CharName;
                     string bgID = sadxcharaList[key].BgID += ".jpg";
                     string runLink = LB.Records[0].WebLink.ToString();
-                    string ILCharaName = "";
                     string bgURL = "https://i.imgur.com/";
 
                     string runTime = LB.Records[0].Times.PrimaryISO.Value.ToString(Program.timeFormat);
@@ -52,7 +51,7 @@ namespace SADX_Discord_Bot.Modules
                         runTime = LB.Records[0].Times.PrimaryISO.Value.ToString(Program.timeFormatWithHours);
 
                     var builder = new EmbedBuilder()
-                        .WithTitle(catName + ILCharaName)
+                        .WithTitle(catName)
                        .WithThumbnailUrl(bgURL + bgID)
                        .WithDescription("The World Record is " + runTime + " by " + LB.Records[0].Player.Name + "\n" + runLink)
                        .WithColor(new Color(33, 176, 252));
@@ -79,7 +78,7 @@ namespace SADX_Discord_Bot.Modules
 
                 if (!BotHelper.isConnectionAllowed())
                 {
-                    await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid? Is the site down?");
+                    await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid? Perhaps the site is down or laggy.");
                     return;
                 }
 

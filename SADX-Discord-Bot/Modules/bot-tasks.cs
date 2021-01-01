@@ -54,17 +54,19 @@ namespace SADX_Discord_Bot.Modules
             {
                 string catName = curRun.Category.Name;
                 string ILCharaName = "";
-                string bgID = ""; 
-                bgID += ".jpg";
+                string bgID = BotHelper.getBGID(curRun.Category.Name);       
                 string resultDay = BotHelper.getSubmittedDay(curRun);
                 newRunList.Add(curRun.ID);
 
                 if (curRun.Level != null)
                 {
+                    bgID = BotHelper.getBGID(curRun.Level.Name);
                     string curChara = catName;
                     ILCharaName = " (" + curChara + ")";
                     catName = curRun.Level.Name;
                 }
+
+                bgID += ".jpg";
 
                 if (isRunListed(curRun.ID, gameID))
                 {
