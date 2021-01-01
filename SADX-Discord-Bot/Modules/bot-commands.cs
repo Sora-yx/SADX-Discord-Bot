@@ -21,6 +21,16 @@ namespace SADX_Discord_Bot.Modules
             await ReplyAsync("pong! Hi, I'm here.");
         }
 
+        [Command("help")]
+        public async Task help()
+        {
+            await ReplyAsync("If you are looking for a World Record of a category, you need to type !wr and the abbreviation of the category just after: " +
+                "\n**!wr knux** will tell you the WR for Knuckles's Story." +
+                "\n**!wr ec s** will tell you the WR for Sonic's Emerald Coast." +
+                "\nIf you want the WR history, type: **!history**" +
+                "\n**Staff Command:** type **!check** in a channel to get the runs awaiting verification.");
+        }
+
 
         [Command("history")]
         public async Task getWRHistory()
@@ -39,7 +49,7 @@ namespace SADX_Discord_Bot.Modules
             {
                 if (key == category)
                 {
-                    Leaderboard LB = Program.Src.Leaderboards.GetLeaderboardForFullGameCategory(gameId: Program.Sadx.ID, categoryId: sadxcharaList[key].CharID, 5);
+                    Leaderboard LB = src.Leaderboards.GetLeaderboardForFullGameCategory(gameId: Program.Sadx.ID, categoryId: sadxcharaList[key].CharID, 5);
                     string catName = sadxcharaList[key].CharName;
                     string bgID = sadxcharaList[key].BgID += ".jpg";
                     string runLink = LB.Records[0].WebLink.ToString();
@@ -57,82 +67,122 @@ namespace SADX_Discord_Bot.Modules
                        .WithColor(new Color(33, 176, 252));
                     var emb = builder.Build();
                     await ReplyAsync(null, false, emb);
+                    return;
                 }
             }
         }
 
-        [Command("check")]
-        public async Task checkRun()
+        [Command("wr")]
+        public async Task getILWR(string category, string character)
         {
-            var src = Program.Src;
-            var conUser = Context.User;
+            Dictionary<string, SADXLevel> sadxlvlList = SADXEnums.levelsID;
 
-            if (conUser is SocketGuildUser user)
+            Dictionary<string, string> charaILID = SADXEnums.charaILID;
+
+            foreach (var key2 in sadxlvlList.Keys)
             {
-                // Check if the user has the required role
-                if (!user.Roles.Any(r => r.Name == "Moderator" && !user.Roles.Any(r => r.Name == "Verifier")))
+                if (key2 == category)
                 {
-                    await ReplyAsync("You don't have the permission for this action.");
-                    return;
-                }
+                    string lvl = sadxlvlList[key2].levelID;
 
-                if (!BotHelper.isConnectionAllowed())
-                {
-                    await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid? Perhaps the site is down or laggy.");
-                    return;
-                }
+                    Leaderboard LB2 = Program.Src.Leaderboards.GetLeaderboardForLevel(gameId: Program.Sadx.ID, levelId: lvl, charaILID[character], 5);
 
-                await ReplyAsync("Dm'ed you the runs awaiting verification. (If any.)");
-
-                string gameID = Program.Sadx.ID;
-                IEnumerable<Run> runsList = src.Runs.GetRuns(gameId: gameID, status: RunStatusType.New, embeds: new RunEmbeds(embedPlayers: true)); //RunEmbeds True = no rate limit to get player name.
-
-                foreach (Run curRun in runsList)
-                {
-                    string catName = curRun.Category.Name;
-                    string ILCharaName = "";
-                    string bgID = "";
-                    string resultDay = BotHelper.getSubmittedDay(curRun);
-
-                    if (curRun.Level != null)
+                    if (LB2.Records[0] != null)
                     {
-                        ILCharaName = " (" + catName + ")";
-                        catName = curRun.Level.Name;
+                        string catName2 = sadxlvlList[key2].CatName;
+                        string bgID2 = sadxlvlList[key2].BgID += ".jpg";
+                        string runLink2 = LB2.Records[0].WebLink.ToString();
+                        string bgURL2 = "https://i.imgur.com/";
+
+                        string runTime2 = LB2.Records[0].Times.PrimaryISO.Value.ToString(Program.timeFormat);
+
+                        if (LB2.Records[0].Times.PrimaryISO.Value.Hours != 0)
+                            runTime2 = LB2.Records[0].Times.PrimaryISO.Value.ToString(Program.timeFormatWithHours);
+
+                        var builder = new EmbedBuilder()
+                            .WithTitle(catName2 + " (" + LB2.Records[0].Category.Name + ")" )
+                           .WithThumbnailUrl(bgURL2 + bgID2)
+                           .WithDescription("The World Record is " + runTime2 + " by " + LB2.Records[0].Player.Name + "\n" + runLink2)
+                           .WithColor(new Color(33, 176, 252));
+                        var emb = builder.Build();
+                        await ReplyAsync(null, false, emb);
                     }
-
-                    string runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormat);
-
-                    if (curRun.Times.PrimaryISO.Value.Hours != 0)
-                        runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormatWithHours);
-
-                    string runLink = curRun.WebLink.ToString();
-                    string bgURL = "https://i.imgur.com/";
-
-                    string ext = ".jpg";
-
-                    var builder = new EmbedBuilder()
-                        .WithThumbnailUrl(bgURL + bgID + ext)
-                        .WithTitle(catName + ILCharaName + " run by " + curRun.Player.Name)
-                        .WithDescription("Time: " + runTime + "\n" + runLink + "\n" + "Submitted " + resultDay)
-                        .WithColor(new Color(33, 176, 252));
-                    var emb = builder.Build();
-                    await Context.User.SendMessageAsync(null, false, emb);
                 }
             }
         }
 
-        [RequireUserPermission(GuildPermission.Administrator)]
-        [Command("quit")]
-        public async Task exitBot()
+    [Command("check")]
+    public async Task checkRun()
+    {
+        var src = Program.Src;
+        var conUser = Context.User;
+
+        if (conUser is SocketGuildUser user)
         {
-            await ReplyAsync(":wave: See ya! \n");
-            DiscordSocketClient task = new DiscordSocketClient();
-            var curChan = Program.GetRunChannel(Program.ELogChannel.logBotChan);
-            if (curChan != null)
-                await curChan.SendMessageAsync("Disconnected... " + DateTime.Now);
-            await task.StopAsync();
-            await Task.Delay(500);
-            Environment.Exit(0);
+            // Check if the user has the required role
+            if (!user.Roles.Any(r => r.Name == "Moderator" && !user.Roles.Any(r => r.Name == "Verifier")))
+            {
+                await ReplyAsync("You don't have the permission for this action.");
+                return;
+            }
+
+            if (!BotHelper.isConnectionAllowed())
+            {
+                await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid? Perhaps the site is down or laggy.");
+                return;
+            }
+
+            await ReplyAsync("Dm'ed you the runs awaiting verification. (If any.)");
+
+            string gameID = Program.Sadx.ID;
+            IEnumerable<Run> runsList = src.Runs.GetRuns(gameId: gameID, status: RunStatusType.New, embeds: new RunEmbeds(embedPlayers: true)); //RunEmbeds True = no rate limit to get player name.
+
+            foreach (Run curRun in runsList)
+            {
+                string catName = curRun.Category.Name;
+                string ILCharaName = "";
+                string bgID = "";
+                string resultDay = BotHelper.getSubmittedDay(curRun);
+
+                if (curRun.Level != null)
+                {
+                    ILCharaName = " (" + catName + ")";
+                    catName = curRun.Level.Name;
+                }
+
+                string runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormat);
+
+                if (curRun.Times.PrimaryISO.Value.Hours != 0)
+                    runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormatWithHours);
+
+                string runLink = curRun.WebLink.ToString();
+                string bgURL = "https://i.imgur.com/";
+
+                string ext = ".jpg";
+
+                var builder = new EmbedBuilder()
+                    .WithThumbnailUrl(bgURL + bgID + ext)
+                    .WithTitle(catName + ILCharaName + " run by " + curRun.Player.Name)
+                    .WithDescription("Time: " + runTime + "\n" + runLink + "\n" + "Submitted " + resultDay)
+                    .WithColor(new Color(33, 176, 252));
+                var emb = builder.Build();
+                await Context.User.SendMessageAsync(null, false, emb);
+            }
         }
     }
+
+    [RequireUserPermission(GuildPermission.Administrator)]
+    [Command("quit")]
+    public async Task exitBot()
+    {
+        await ReplyAsync(":wave: See ya! \n");
+        DiscordSocketClient task = new DiscordSocketClient();
+        var curChan = Program.GetRunChannel(Program.ELogChannel.logBotChan);
+        if (curChan != null)
+            await curChan.SendMessageAsync("Disconnected... " + DateTime.Now);
+        await task.StopAsync();
+        await Task.Delay(500);
+        Environment.Exit(0);
+    }
+}
 }
