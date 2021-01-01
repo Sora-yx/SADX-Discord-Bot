@@ -28,6 +28,40 @@ namespace SADX_Discord_Bot.Modules
             await ReplyAsync("https://docs.google.com/spreadsheets/d/1r3NCGlerKyvKZc6aPV-b4eCJ6JiF1PljDndm4JnOVto/edit?usp=sharing");
         }
 
+        [Command("wr")]
+        public async Task getWR(string category)
+        {
+            var src = Program.Src;
+
+            Dictionary<string, SADXCharacter> sadxcharaList = SADXEnums.charactersID;
+
+            foreach (var key in sadxcharaList.Keys)
+            {
+                if (key == category)
+                {
+                    Leaderboard LB = Program.Src.Leaderboards.GetLeaderboardForFullGameCategory(gameId: Program.Sadx.ID, categoryId: sadxcharaList[key].CharID, 5);
+                    string catName = sadxcharaList[key].CharName;
+                    string bgID = sadxcharaList[key].BgID += ".jpg";
+                    string runLink = LB.Records[0].WebLink.ToString();
+                    string ILCharaName = "";
+                    string bgURL = "https://i.imgur.com/";
+
+                    string runTime = LB.Records[0].Times.PrimaryISO.Value.ToString(Program.timeFormat);
+
+                    if (LB.Records[0].Times.PrimaryISO.Value.Hours != 0)
+                        runTime = LB.Records[0].Times.PrimaryISO.Value.ToString(Program.timeFormatWithHours);
+
+                    var builder = new EmbedBuilder()
+                        .WithTitle(catName + ILCharaName)
+                       .WithThumbnailUrl(bgURL + bgID)
+                       .WithDescription("The World Record is " + runTime + " by " + LB.Records[0].Player.Name + "\n" + runLink)
+                       .WithColor(new Color(33, 176, 252));
+                    var emb = builder.Build();
+                    await ReplyAsync(null, false, emb);
+                }
+            }
+        }
+
         [Command("check")]
         public async Task checkRun()
         {
@@ -45,7 +79,7 @@ namespace SADX_Discord_Bot.Modules
 
                 if (!BotHelper.isConnectionAllowed())
                 {
-                    await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid?");
+                    await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid? Is the site down?");
                     return;
                 }
 
@@ -92,10 +126,11 @@ namespace SADX_Discord_Bot.Modules
         [Command("quit")]
         public async Task exitBot()
         {
+            await ReplyAsync(":wave: See ya! \n");
             DiscordSocketClient task = new DiscordSocketClient();
             var curChan = Program.GetRunChannel(Program.ELogChannel.logBotChan);
             if (curChan != null)
-                await curChan.SendMessageAsync(":wave: See ya! \n" + "Disconnected... " + DateTime.Now);
+                await curChan.SendMessageAsync("Disconnected... " + DateTime.Now);
             await task.StopAsync();
             await Task.Delay(500);
             Environment.Exit(0);

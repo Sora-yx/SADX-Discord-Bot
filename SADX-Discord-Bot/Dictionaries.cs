@@ -72,14 +72,14 @@ namespace SADX_Discord_Bot
 
         public static Dictionary<string, SADXCharacter> charactersID = new Dictionary<string, SADXCharacter>()
         {
-            {"Sonic", new SADXCharacter("mndx5rkq", "Sonic's Story", "JNzU3kg")},
-            {"Tails", new SADXCharacter("xw20x52n", "Tails's Story", "1UUd2MI")},
-            {"Knux", new SADXCharacter("xwdmvodq", "Knuckles's Story", "Ei2zWl2")},
-            {"Amy", new SADXCharacter("lvdoxvdp", "Amy's Story", "h0hMckY")},
-            {"Big", new SADXCharacter("37dg0pk4", "Big's Story", "hsic1CA")},
-            {"E102", new SADXCharacter("7wkp0w2r", "Gamma's Story", "HCounU0")},
-            {"SS", new SADXCharacter("4xk94vd0", "Super Sonic's Story", "zugq3NE")},
-            {"All", new SADXCharacter("pmkel6d6", "All Stories", "qt9qXJo")},
+            {"sonic", new SADXCharacter("mndx5rkq", "Sonic's Story", "JNzU3kg")},
+            {"tails", new SADXCharacter("xw20x52n", "Tails's Story", "1UUd2MI")},
+            {"knux", new SADXCharacter("xwdmvodq", "Knuckles's Story", "Ei2zWl2")},
+            {"amy", new SADXCharacter("lvdoxvdp", "Amy's Story", "h0hMckY")},
+            {"big", new SADXCharacter("37dg0pk4", "Big's Story", "hsic1CA")},
+            {"e102", new SADXCharacter("7wkp0w2r", "Gamma's Story", "HCounU0")},
+            {"ss", new SADXCharacter("4xk94vd0", "Super Sonic's Story", "zugq3NE")},
+            {"all", new SADXCharacter("pmkel6d6", "All Stories", "qt9qXJo")},
             {"130", new SADXCharacter("w5dw6l2g", "130 Emblems", "2IPPCec")},
         };
     }

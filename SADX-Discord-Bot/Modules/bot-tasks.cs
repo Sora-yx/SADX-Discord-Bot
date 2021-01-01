@@ -28,7 +28,10 @@ namespace SADX_Discord_Bot.Modules
 
             if (!BotHelper.isConnectionAllowed())
             {
-                await curChan.SendMessageAsync("Error, I couldn't log to SRC. Are you sure the token is valid? Please check the text file.");
+                curChan = Program.GetRunChannel(Program.ELogChannel.logBotChan);
+                if (curChan != null)
+                    await curChan.SendMessageAsync("Error, I couldn't log to SRC to check the runs. The site might be down, also make sure the Token is valid.");
+                Console.WriteLine("Error, couldn't log to SRC to check the runs.");
                 return;
             }
 
@@ -51,7 +54,8 @@ namespace SADX_Discord_Bot.Modules
             {
                 string catName = curRun.Category.Name;
                 string ILCharaName = "";
-                string bgID = "";
+                string bgID = ""; 
+                bgID += ".jpg";
                 string resultDay = BotHelper.getSubmittedDay(curRun);
                 newRunList.Add(curRun.ID);
 
@@ -77,10 +81,9 @@ namespace SADX_Discord_Bot.Modules
                     string runLink = curRun.WebLink.ToString();
                     string bgURL = "https://i.imgur.com/";
 
-                    string ext = ".jpg";
 
                     var builder = new EmbedBuilder()
-                        .WithThumbnailUrl(bgURL + bgID + ext)
+                        .WithThumbnailUrl(bgURL + bgID)
                         .WithTitle(catName + ILCharaName + " run by " + curRun.Player.Name)
                         .WithDescription("Time: " + runTime + "\n" + runLink + "\n" + "Submitted " + resultDay)
                         .WithColor(new Color(33, 176, 252));
@@ -108,20 +111,27 @@ namespace SADX_Discord_Bot.Modules
             }
         }
 
-            public static bool isRunListed(string currentRun, string gameID)
-            {
-                List<string> run = Program.runList;
+        public static bool isRunListed(string currentRun, string gameID)
+        {
+            List<string> run = Program.runList;
 
-                if (gameID == BotHelper.getCEID)
-                    run = Program.runCEList;
+            if (gameID == BotHelper.getCEID)
+                run = Program.runCEList;
 
-                bool result = run.Contains(currentRun);
+            bool result = run.Contains(currentRun);
 
-                if (result)
-                    return true;
+            if (result)
+                return true;
 
-                return false;
-            }
+            return false;
         }
 
+        public static void listWRCategory(string cat)
+        {
+            Leaderboard LB = Program.Src.Leaderboards.GetLeaderboardForFullGameCategory(gameId: Program.Sadx.ID, categoryId: cat);
+            if (LB.Category != null)
+                Console.WriteLine(LB.Category.Name.ToString());
+        }
     }
+
+}

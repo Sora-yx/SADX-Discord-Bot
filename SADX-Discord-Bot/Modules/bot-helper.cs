@@ -43,7 +43,6 @@ namespace SADX_Discord_Bot.Modules
 
             if (!Program.Src.IsAccessTokenValid)
             {
-                Console.WriteLine("Error, couldn't log to SRC. Make sure the bot can read the SRC Token.");
                 return false;
             }
 
