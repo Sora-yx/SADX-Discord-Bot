@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using SpeedrunComSharp;
-using System.Timers;
 using SADX_Discord_Bot.Modules;
 using System.Text.Json;
 
@@ -149,9 +146,9 @@ namespace SADX_Discord_Bot
             return Task.CompletedTask;
         }
 
-        private static void CheckNewRun_Loop(object sender, System.Timers.ElapsedEventArgs e)
+        private async static void CheckNewRun_Loop(object sender, System.Timers.ElapsedEventArgs e)
         {
-            BotExecTask.checkNewRun();
+            await BotExecTask.checkNewRun();
         }
 
         private async Task executecopyJson()

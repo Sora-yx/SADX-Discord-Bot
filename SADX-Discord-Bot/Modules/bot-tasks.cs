@@ -1,11 +1,8 @@
-﻿using Discord.Commands;
+﻿
 using Discord;
-using Discord.WebSocket;
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using SpeedrunComSharp;
 using System.Text.Json;
