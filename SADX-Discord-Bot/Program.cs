@@ -46,12 +46,26 @@ namespace SADX_Discord_Bot
             client.Log += Log;
             client.Ready += () =>
             {
-                Sadx = Src.Games.SearchGame(name: "SADX");
-
-                Console.Write("Ready! Gotta go fast!");
                 var curChan = GetRunChannel(ELogChannel.logBotChan);
-                if (curChan != null)
-                    curChan.SendMessageAsync("Ready! Gotta go fast! \n" + "Connected. " + DateTime.Now);
+                var textRdy = "Ready! Gotta go fast!";
+
+                try
+                {
+                    Sadx = Src.Games.SearchGame(name: "SADX");
+                    Console.WriteLine(textRdy);
+                    if (curChan != null)
+                        curChan.SendMessageAsync(textRdy + "\n" + "Connected. " + DateTime.Now);
+
+                }
+                catch
+                {
+                    var error = "Error, when trying to access SADX on src, did the API break? ";
+                    if (curChan != null)
+                        curChan.SendMessageAsync(error + DateTime.Now);
+
+                    Console.WriteLine(error);
+                } 
+
                 return Task.CompletedTask;
             };
 

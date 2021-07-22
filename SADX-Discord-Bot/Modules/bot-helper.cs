@@ -87,7 +87,7 @@ namespace SADX_Discord_Bot.Modules
                 }
             }
 
-            return null;
+            return "qt9qXJo";
         }
 
         public static string getCEID
