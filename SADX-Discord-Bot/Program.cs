@@ -23,6 +23,8 @@ namespace SADX_Discord_Bot
         public static List<string> runList = new List<string>();
         public static List<string> runCEList = new List<string>();
         public static List<string> chanList = new List<string>();
+        private bool isConnected;
+        private bool isError;
 
         public enum ELogChannel
         {
@@ -53,15 +55,24 @@ namespace SADX_Discord_Bot
                 {
                     Sadx = Src.Games.SearchGame(name: "SADX");
                     Console.WriteLine(textRdy);
-                    if (curChan != null)
+
+                    if (curChan != null && !isConnected)
+                    {
                         curChan.SendMessageAsync(textRdy + "\n" + "Connected. " + DateTime.Now);
+                        isConnected = true;
+                        isError = false;
+                    }
 
                 }
                 catch
                 {
-                    var error = "Error, when trying to access SADX on src, did the API break? ";
-                    if (curChan != null)
+                    var error = "Error, when trying to access SADX on src, did the API break? I will try again in 5 minutes. ";
+                    if (curChan != null && !isError)
+                    {
                         curChan.SendMessageAsync(error + DateTime.Now);
+                        isError = true;
+                        isConnected = false;
+                    }
 
                     Console.WriteLine(error);
                 } 

@@ -14,6 +14,7 @@ namespace SADX_Discord_Bot.Modules
 {
     public class BotHelper
     {
+
         public static string StripHTML(string input)
         {
             return Regex.Replace(input, "<.*?>", String.Empty);

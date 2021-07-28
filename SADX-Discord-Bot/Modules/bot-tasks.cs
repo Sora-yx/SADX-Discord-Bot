@@ -13,6 +13,8 @@ namespace SADX_Discord_Bot.Modules
 
     public static class BotExecTask
     {
+        static private bool isAllowed;
+
         public static async Task checkNewRun()
         {
             var curChan = Program.GetRunChannel(Program.ELogChannel.newRunChan);
@@ -26,8 +28,11 @@ namespace SADX_Discord_Bot.Modules
             if (!BotHelper.isConnectionAllowed())
             {
                 curChan = Program.GetRunChannel(Program.ELogChannel.logBotChan);
-                if (curChan != null)
+                if (curChan != null && !isAllowed)
+                {
                     await curChan.SendMessageAsync("Error, I couldn't log to SRC to check the runs. The site might be down, also make sure the Token is valid.");
+                    isAllowed = true;
+                }
                 Console.WriteLine("Error, couldn't log to SRC to check the runs.");
                 return;
             }
@@ -38,6 +43,7 @@ namespace SADX_Discord_Bot.Modules
             //Category Extension
             gameID = BotHelper.getCEID;
             await ListNewRuns(gameID, curChan);
+            isAllowed = false;
         }
 
         public static async Task ListNewRuns(string gameID, IMessageChannel curChan)
