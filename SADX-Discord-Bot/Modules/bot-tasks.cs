@@ -16,10 +16,12 @@ namespace SADX_Discord_Bot.Modules
 
         private static void rejectCountCheck()
         {
-            if (rejectCount >= 12) {
+            if (rejectCount >= 12)
+            {
                 rejectCount = 0;
             }
-            else {
+            else
+            {
                 rejectCount++;
             }
         }
@@ -146,5 +148,6 @@ namespace SADX_Discord_Bot.Modules
             if (LB.Category != null)
                 Console.WriteLine(LB.Category.Name.ToString());
         }
+    }
 
 }
