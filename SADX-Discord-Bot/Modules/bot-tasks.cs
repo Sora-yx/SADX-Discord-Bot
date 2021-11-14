@@ -10,12 +10,21 @@ using System.Text.Json;
 
 namespace SADX_Discord_Bot.Modules
 {
-
     public static class BotExecTask
     {
-        static private bool isAllowed;
+        static private int rejectCount;
 
-        public static async Task checkNewRun()
+        private static void rejectCountCheck()
+        {
+            if (rejectCount >= 12) {
+                rejectCount = 0;
+            }
+            else {
+                rejectCount++;
+            }
+        }
+
+        public static async Task checkAndListNewRun()
         {
             var curChan = Program.GetRunChannel(Program.ELogChannel.newRunChan);
 
@@ -28,12 +37,13 @@ namespace SADX_Discord_Bot.Modules
             if (!BotHelper.isConnectionAllowed())
             {
                 curChan = Program.GetRunChannel(Program.ELogChannel.logBotChan);
-                if (curChan != null && !isAllowed)
+                if (curChan != null && rejectCount == 0) //prevent the bot to spam the error message.
                 {
                     await curChan.SendMessageAsync("Error, I couldn't log to SRC to check the runs. The site might be down, also make sure the Token is valid.");
-                    isAllowed = true;
+                    Console.WriteLine("Error, couldn't log to SRC to check the runs.");
                 }
-                Console.WriteLine("Error, couldn't log to SRC to check the runs.");
+
+                rejectCountCheck();
                 return;
             }
 
@@ -43,7 +53,6 @@ namespace SADX_Discord_Bot.Modules
             //Category Extension
             gameID = BotHelper.getCEID;
             await ListNewRuns(gameID, curChan);
-            isAllowed = false;
         }
 
         public static async Task ListNewRuns(string gameID, IMessageChannel curChan)
@@ -57,7 +66,7 @@ namespace SADX_Discord_Bot.Modules
             {
                 string catName = curRun.Category.Name;
                 string ILCharaName = "";
-                string bgID = BotHelper.getBGID(curRun.Category.Name);       
+                string bgID = BotHelper.getBGID(curRun.Category.Name);
                 string resultDay = BotHelper.getSubmittedDay(curRun);
                 newRunList.Add(curRun.ID);
 
@@ -137,6 +146,5 @@ namespace SADX_Discord_Bot.Modules
             if (LB.Category != null)
                 Console.WriteLine(LB.Category.Name.ToString());
         }
-    }
 
 }

@@ -14,7 +14,6 @@ namespace SADX_Discord_Bot.Modules
 {
     public class Bot_commands : ModuleBase<SocketCommandContext>
     {
-
         [Command("ping")]
         public async Task PingAsync()
         {
@@ -100,7 +99,7 @@ namespace SADX_Discord_Bot.Modules
                             runTime2 = LB2.Records[0].Times.PrimaryISO.Value.ToString(Program.timeFormatWithHours);
 
                         var builder = new EmbedBuilder()
-                            .WithTitle(catName2 + " (" + LB2.Records[0].Category.Name + ")" )
+                            .WithTitle(catName2 + " (" + LB2.Records[0].Category.Name + ")")
                            .WithThumbnailUrl(bgURL2 + bgID2)
                            .WithDescription("The World Record is " + runTime2 + " by " + LB2.Records[0].Player.Name + "\n" + runLink2)
                            .WithColor(new Color(33, 176, 252));
@@ -111,78 +110,123 @@ namespace SADX_Discord_Bot.Modules
             }
         }
 
-    [Command("check")]
-    public async Task checkRun()
-    {
-        var src = Program.Src;
-        var conUser = Context.User;
-
-        if (conUser is SocketGuildUser user)
+        [Command("check")]
+        public async Task checkRun()
         {
-            // Check if the user has the required role
-            if (!user.Roles.Any(r => r.Name == "Moderator" && !user.Roles.Any(r => r.Name == "Verifier")))
+            var src = Program.Src;
+            var conUser = Context.User;
+
+            if (conUser is SocketGuildUser user)
             {
-                await ReplyAsync("You don't have the permission for this action.");
-                return;
-            }
-
-            if (!BotHelper.isConnectionAllowed())
-            {
-                await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid? Perhaps the site is down or laggy.");
-                return;
-            }
-
-            await ReplyAsync("Dm'ed you the runs awaiting verification. (If any.)");
-
-            string gameID = Program.Sadx.ID;
-            IEnumerable<Run> runsList = src.Runs.GetRuns(gameId: gameID, status: RunStatusType.New, embeds: new RunEmbeds(embedPlayers: true)); //RunEmbeds True = no rate limit to get player name.
-
-            foreach (Run curRun in runsList)
-            {
-                string catName = curRun.Category.Name;
-                string ILCharaName = "";
-                string bgID = "";
-                string resultDay = BotHelper.getSubmittedDay(curRun);
-
-                if (curRun.Level != null)
+                // Check if the user has the required role
+                if (!user.Roles.Any(r => r.Name == "Moderator" && !user.Roles.Any(r => r.Name == "Verifier")))
                 {
-                    ILCharaName = " (" + catName + ")";
-                    catName = curRun.Level.Name;
+                    await ReplyAsync("You don't have the permission for this action.");
+                    return;
                 }
 
-                string runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormat);
+                if (!BotHelper.isConnectionAllowed())
+                {
+                    await ReplyAsync("Error, couldn't log to SRC. Are you sure the token is valid? Perhaps the site is down or laggy.");
+                    return;
+                }
 
-                if (curRun.Times.PrimaryISO.Value.Hours != 0)
-                    runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormatWithHours);
+                await ReplyAsync("Dm'ed you the runs awaiting verification. (If any.)");
 
-                string runLink = curRun.WebLink.ToString();
-                string bgURL = "https://i.imgur.com/";
+                string gameID = Program.Sadx.ID;
+                IEnumerable<Run> runsList = src.Runs.GetRuns(gameId: gameID, status: RunStatusType.New, embeds: new RunEmbeds(embedPlayers: true)); //RunEmbeds True = no rate limit to get player name.
 
-                string ext = ".jpg";
+                foreach (Run curRun in runsList)
+                {
+                    string catName = curRun.Category.Name;
+                    string ILCharaName = "";
+                    string bgID = "";
+                    string resultDay = BotHelper.getSubmittedDay(curRun);
 
-                var builder = new EmbedBuilder()
-                    .WithThumbnailUrl(bgURL + bgID + ext)
-                    .WithTitle(catName + ILCharaName + " run by " + curRun.Player.Name)
-                    .WithDescription("Time: " + runTime + "\n" + runLink + "\n" + "Submitted " + resultDay)
-                    .WithColor(new Color(33, 176, 252));
-                var emb = builder.Build();
-                await Context.User.SendMessageAsync(null, false, emb);
+                    if (curRun.Level != null)
+                    {
+                        ILCharaName = " (" + catName + ")";
+                        catName = curRun.Level.Name;
+                    }
+
+                    string runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormat);
+
+                    if (curRun.Times.PrimaryISO.Value.Hours != 0)
+                        runTime = curRun.Times.PrimaryISO.Value.ToString(Program.timeFormatWithHours);
+
+                    string runLink = curRun.WebLink.ToString();
+                    string bgURL = "https://i.imgur.com/";
+
+                    string ext = ".jpg";
+
+                    var builder = new EmbedBuilder()
+                        .WithThumbnailUrl(bgURL + bgID + ext)
+                        .WithTitle(catName + ILCharaName + " run by " + curRun.Player.Name)
+                        .WithDescription("Time: " + runTime + "\n" + runLink + "\n" + "Submitted " + resultDay)
+                        .WithColor(new Color(33, 176, 252));
+                    var emb = builder.Build();
+                    await Context.User.SendMessageAsync(null, false, emb);
+                }
             }
         }
-    }
 
-    [RequireUserPermission(GuildPermission.Administrator)]
-    [Command("quit")]
-    public async Task exitBot()
-    {
-        await ReplyAsync(":wave: See ya! \n");
-        DiscordSocketClient task = new DiscordSocketClient();
-        var curChan = Program.GetRunChannel(Program.ELogChannel.logBotChan);
-        if (curChan != null)
-            await curChan.SendMessageAsync("Disconnected... " + DateTime.Now);
-        await task.StopAsync();
-        await Task.Delay(500);
-        Environment.Exit(0);
+        [RequireUserPermission(GuildPermission.Administrator)]
+        [Command("quit")]
+        public async Task exitBot()
+        {
+            await ReplyAsync(":wave: See ya! \n");
+            DiscordSocketClient task = new DiscordSocketClient();
+            var curChan = Program.GetRunChannel(Program.ELogChannel.logBotChan);
+            if (curChan != null)
+                await curChan.SendMessageAsync("Disconnected... " + DateTime.Now);
+            await task.StopAsync();
+            await Task.Delay(500);
+            Environment.Exit(0);
+        }
+
+        [Command("count")]
+        public async Task CountDown(string count)
+        {
+
+            var conUser = Context.User;
+
+            if (conUser is SocketGuildUser user)
+            {
+                // Check if the user has the required role (mod, verifier and tournament organizer)
+                if (!user.Roles.Any(r => r.Id == 772829556716470302) && !user.Roles.Any(r => r.Id == 772830066677121044) && !user.Roles.Any(r => r.Id == 896190676277010433))
+                {
+                    await ReplyAsync("You don't have the permission for this action.");
+                    return;
+                }
+
+                int numericValue;
+                int numericCopy;
+
+                bool isNumber = int.TryParse(count, out numericValue);
+
+
+                if (count == "" || !isNumber || numericValue > 20)
+                {
+                    await ReplyAsync("Please enter a valid number, max allowed is 20. (ie: !count 10)");
+                    return;
+                }
+
+                numericCopy = numericValue;
+
+                do
+                {
+                    if (numericCopy != numericValue)
+                        await Task.Delay(1000);
+
+                    await ReplyAsync(numericValue.ToString());
+                    numericValue--;
+
+                } while (numericValue > -1);
+            }
+
+
+
+            return;
+        }
     }
-}
 }

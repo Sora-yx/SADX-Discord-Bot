@@ -48,35 +48,7 @@ namespace SADX_Discord_Bot
             client.Log += Log;
             client.Ready += () =>
             {
-                var curChan = GetRunChannel(ELogChannel.logBotChan);
-                var textRdy = "Ready! Gotta go fast!";
-
-                try
-                {
-                    Sadx = Src.Games.SearchGame(name: "SADX");
-                    Console.WriteLine(textRdy);
-
-                    if (curChan != null && !isConnected)
-                    {
-                        curChan.SendMessageAsync(textRdy + "\n" + "Connected. " + DateTime.Now);
-                        isConnected = true;
-                        isError = false;
-                    }
-
-                }
-                catch
-                {
-                    var error = "Error, when trying to access SADX on src, did the API break? I will try again in 5 minutes. ";
-                    if (curChan != null && !isError)
-                    {
-                        curChan.SendMessageAsync(error + DateTime.Now);
-                        isError = true;
-                        isConnected = false;
-                    }
-
-                    Console.WriteLine(error);
-                } 
-
+                LogToSRC();
                 return Task.CompletedTask;
             };
 
@@ -91,27 +63,8 @@ namespace SADX_Discord_Bot
 
             await InstallCommandsAsync(); //set command users
             await executecopyJson();
-            await getChanList();
-
-            try
-            {
-                using (var sr = new StreamReader("info.txt"))
-                {
-                    Console.WriteLine("Reading Discord token information...");
-                    string[] lines = File.ReadAllLines("info.txt");
-                    await client.LoginAsync(TokenType.Bot, lines[0]);
-                    sr.Close();
-                }
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine("Error, couldn't read the file.");
-                Console.WriteLine(e.Message);
-                await client.StopAsync();
-                await Task.Delay(1000);
-                Environment.Exit(0);
-            }
-
+            await LogToDiscord();
+            getChanList();
             await client.StartAsync();
             await Task.Delay(-1);
         }
@@ -159,21 +112,73 @@ namespace SADX_Discord_Bot
             return (chnl);
         }
 
-        private static Task LoopCheck()
+        public void LogToSRC()
         {
-            var test = GetRunChannel(ELogChannel.newRunChan);
+            var curChan = GetRunChannel(ELogChannel.logBotChan);
+            var textRdy = "Ready! Gotta go fast on Discord!";
 
-            if (test != null)
-                test.SendMessageAsync("Test!");
-            else
-                Console.WriteLine("Error, couldn't get the channel run");
+            try
+            {
+                Sadx = Src.Games.SearchGame(name: "SADX");
+                Console.WriteLine(textRdy);
 
-            return Task.CompletedTask;
+                if (curChan != null)
+                {
+                    if (!isConnected && !isError)
+                    {
+                        curChan.SendMessageAsync(textRdy + "\n" + "Successfully Connected to speedrun.com " + DateTime.Now);
+                        isConnected = true;
+                        isError = false;
+                    }
+                    else if (!isConnected && isError)
+                    {
+                        curChan.SendMessageAsync("We're back! " + DateTime.Now);
+                        isConnected = true;
+                        isError = false;        
+                    }
+                }
+            }
+            catch
+            {
+                var error = "Error, when trying to access SADX on src, did the API break? I will try again in 5 minutes. ";
+                if (curChan != null && !isError)
+                {
+                    curChan.SendMessageAsync(error + DateTime.Now);
+                    isError = true;
+                    isConnected = false;
+                }
+
+                Console.WriteLine(error);
+            }
+            return;
         }
+
+        public async Task LogToDiscord()
+        {
+            try
+            {
+                using (var sr = new StreamReader("info.txt"))
+                {
+                    Console.WriteLine("Reading Discord token information...");
+                    string[] lines = File.ReadAllLines("info.txt");
+                    await client.LoginAsync(TokenType.Bot, lines[0]);
+                    sr.Close();
+                }
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine("Error, couldn't read the file.");
+                Console.WriteLine(e.Message);
+                await client.StopAsync();
+                await Task.Delay(1000);
+                Environment.Exit(0);
+            }
+        }
+
 
         private async static void CheckNewRun_Loop(object sender, System.Timers.ElapsedEventArgs e)
         {
-            await BotExecTask.checkNewRun();
+            await BotExecTask.checkAndListNewRun();
         }
 
         private async Task executecopyJson()
@@ -189,7 +194,7 @@ namespace SADX_Discord_Bot
             }
         }
 
-        private async Task getChanList()
+        private void getChanList()
         {
             string txt = "chan.txt";
 
