@@ -190,39 +190,45 @@ namespace SADX_Discord_Bot.Modules
 
             var conUser = Context.User;
 
-            if (conUser is SocketGuildUser user)
+            int numericValue;
+            int numericCopy;
+
+            bool isNumber = int.TryParse(count, out numericValue);
+
+
+            if (count == "" || !isNumber || numericValue > 20)
             {
-                // Check if the user has the required role (mod, verifier and tournament organizer)
-                if (!user.Roles.Any(r => r.Id == 772829556716470302) && !user.Roles.Any(r => r.Id == 772830066677121044) && !user.Roles.Any(r => r.Id == 896190676277010433))
-                {
-                    await ReplyAsync("You don't have the permission for this action.");
-                    return;
-                }
-
-                int numericValue;
-                int numericCopy;
-
-                bool isNumber = int.TryParse(count, out numericValue);
-
-
-                if (count == "" || !isNumber || numericValue > 20)
-                {
-                    await ReplyAsync("Please enter a valid number, max allowed is 20. (ie: !count 10)");
-                    return;
-                }
-
-                numericCopy = numericValue;
-
-                do
-                {
-                    if (numericCopy != numericValue)
-                        await Task.Delay(1000);
-
-                    await ReplyAsync(numericValue.ToString());
-                    numericValue--;
-
-                } while (numericValue > -1);
+                await ReplyAsync("Please enter a valid number, max allowed is 20. (ie: !count 10)");
+                return;
             }
+
+            numericCopy = numericValue;
+
+            do
+            {
+
+                if (numericCopy != numericValue)
+                    await Task.Delay(1100);
+
+                if (numericValue <= 5)
+                {
+                    await Task.Delay(150);
+                }
+
+                int result = numericValue % 10;
+
+                if (result == 0 || result == 5 || result <= 4 && numericValue < 10)
+                {
+                    if (numericValue == 0)
+                        await ReplyAsync("GO!!!!");
+                    else
+                        await ReplyAsync(numericValue.ToString());
+                }
+
+                numericValue--;
+
+            } while (numericValue > -1);
+
 
 
 
