@@ -212,12 +212,13 @@ namespace SADX_Discord_Bot.Modules
                 }
 
                 numericCopy = numericValue;
-                await ReplyAsync(numericValue.ToString());
+                await ReplyAsync(numericValue.ToString() + "....");
+                numericValue--;
 
                 do
                 {
 
-                    await Task.Delay(1100);
+                    await Task.Delay(1120);
 
                     if (numericValue <= 5)
                     {
