@@ -119,7 +119,7 @@ namespace SADX_Discord_Bot
 
             try
             {
-                Sadx = Src.Games.SearchGame(name: "SADX");
+                Sadx = Src.Games.GetGame(BotHelper.getSADXID);
                 Console.WriteLine(textRdy);
 
                 if (curChan != null)

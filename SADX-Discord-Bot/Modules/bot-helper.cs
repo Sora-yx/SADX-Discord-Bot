@@ -95,6 +95,11 @@ namespace SADX_Discord_Bot.Modules
         {
             get { return "268r391p"; }
         }
+        
+        public static string getSADXID
+        {
+            get { return "xv1pg718"; }
+        }
     }
 
 

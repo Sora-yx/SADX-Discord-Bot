@@ -50,7 +50,7 @@ namespace SADX_Discord_Bot.Modules
             }
 
             //List Runs
-            string gameID = Program.Sadx.ID;
+            string gameID = BotHelper.getSADXID;
             await ListNewRuns(gameID, curChan);
             //Category Extension
             gameID = BotHelper.getCEID;
